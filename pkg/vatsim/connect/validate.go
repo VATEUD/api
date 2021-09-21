@@ -219,8 +219,8 @@ func saveUser(data Data, saveChannel chan error) {
 				DivisionName:    data.Vatsim.Division.Name,
 				SubdivisionID:   data.Vatsim.Subdivision.ID,
 				SubdivisionName: data.Vatsim.Subdivision.Name,
-				CreatedAt: time.Now().UTC(),
-				UpdatedAt: time.Now().UTC(),
+				CreatedAt:       time.Now().UTC(),
+				UpdatedAt:       time.Now().UTC(),
 			}
 
 			if err := database.DB.Create(&user).Error; err != nil {

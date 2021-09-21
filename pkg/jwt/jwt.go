@@ -18,7 +18,7 @@ func New(tokenString string) (*Token, error) {
 		return nil, errors.New("JWT Secret not available")
 	}
 
-	token, err := jwt.Parse(tokenString, func (token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New(fmt.Sprintf("Unexpected signing method: %s", token.Header["alg"]))
 		}
