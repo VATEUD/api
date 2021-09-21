@@ -1,7 +1,10 @@
 package web
 
 import (
+	"auth/pkg/jwt"
+	"auth/pkg/response"
 	"golang.org/x/time/rate"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -19,6 +22,40 @@ func authMiddleware(next http.Handler) http.Handler {
 
 		if !server.NeedsAuth(uri) {
 			next.ServeHTTP(w, r)
+			return
+		}
+
+		authHeader := r.Header.Get("Authorization")
+
+		if len(authHeader) < 1 {
+			log.Println("Authentication header not provided.")
+			res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
+			res.Process()
+			return
+		}
+
+		auth := strings.TrimPrefix(authHeader, "Bearer ")
+
+		if len(auth) < 1 {
+			log.Println("Authentication header not provided.")
+			res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
+			res.Process()
+			return
+		}
+
+		token, err := jwt.New(auth)
+
+		if err != nil {
+			log.Println("Invalid token provided.")
+			res := response.New(w, r, "Invalid token provided.", http.StatusUnauthorized)
+			res.Process()
+			return
+		}
+
+		if !token.Valid {
+			log.Println("Invalid token provided.")
+			res := response.New(w, r, "Invalid token provided.", http.StatusUnauthorized)
+			res.Process()
 			return
 		}
 

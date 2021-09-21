@@ -1,6 +1,7 @@
 package web
 
 import (
+	"auth/pkg/vatsim/connect"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -17,6 +18,7 @@ type Handler struct {
 	Methods    []string
 	Function   http.HandlerFunc
 	AuthNeeded bool
+	GuestOnly  bool
 }
 
 type Middleware struct {
@@ -52,6 +54,25 @@ func (server *Server) loadRoutes() {
 			func(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("test"))
 			},
+			true,
+			false,
+		},
+		{
+			"/auth/login",
+			[]string{
+				"GET",
+			},
+			connect.Login,
+			false,
+			true,
+		},
+		{
+			"/auth/validate",
+			[]string{
+				"GET",
+			},
+			connect.Validate,
+			false,
 			true,
 		},
 	}
