@@ -18,6 +18,7 @@ type Handler struct {
 	Methods    []string
 	Function   http.HandlerFunc
 	AuthNeeded bool
+	GuestOnly  bool
 }
 
 type Middleware struct {
@@ -54,14 +55,25 @@ func (server *Server) loadRoutes() {
 				w.Write([]byte("test"))
 			},
 			true,
+			false,
 		},
 		{
-			"/login",
+			"/auth/login",
 			[]string{
 				"GET",
 			},
 			connect.Login,
 			false,
+			true,
+		},
+		{
+			"/auth/validate",
+			[]string{
+				"GET",
+			},
+			connect.Validate,
+			false,
+			true,
 		},
 	}
 }

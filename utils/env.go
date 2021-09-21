@@ -1,8 +1,12 @@
 package utils
 
 import (
-	"math/rand"
 	"os"
+)
+
+const (
+	alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	numerals = "0123456789"
 )
 
 func Getenv(key, defaultValue string) string {
@@ -13,16 +17,4 @@ func Getenv(key, defaultValue string) string {
 	}
 
 	return value
-}
-
-func RandomString(length int) string {
-
-	var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	var result = make([]byte, length)
-
-	for i := 0; i < length; i++ {
-		result[i] = letters[rand.Intn(len(letters))]
-	}
-
-	return string(result)
 }
