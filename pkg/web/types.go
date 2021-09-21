@@ -1,6 +1,7 @@
 package web
 
 import (
+	"auth/pkg/vatsim/connect"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -53,6 +54,14 @@ func (server *Server) loadRoutes() {
 				w.Write([]byte("test"))
 			},
 			true,
+		},
+		{
+			"/login",
+			[]string{
+				"GET",
+			},
+			connect.Login,
+			false,
 		},
 	}
 }
