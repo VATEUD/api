@@ -3,6 +3,7 @@ package web
 import (
 	"auth/pkg/vatsim/connect"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
@@ -33,6 +34,7 @@ func (server *Server) Start() error {
 }
 
 func (server *Server) registerRoutes() {
+	log.Println("Registering the routes")
 	server.loadRoutes()
 	for _, h := range server.handlers {
 		server.router.HandleFunc(h.Path, h.Function).Methods(h.Methods...)
@@ -79,6 +81,7 @@ func (server *Server) loadRoutes() {
 }
 
 func (server *Server) registerMiddlewares() {
+	log.Println("Registering the middlewares")
 	server.loadMiddlewares()
 	for _, m := range server.middlewares {
 		server.router.Use(m.Function)
