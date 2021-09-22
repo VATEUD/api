@@ -110,3 +110,16 @@ func (server Server) NeedsAuth(uri string) bool {
 
 	return false
 }
+
+func (server Server) GuestOnly(uri string) bool {
+	for _, route := range server.handlers {
+		if route.Path == uri {
+			if route.GuestOnly {
+				return true
+			}
+			break
+		}
+	}
+
+	return false
+}

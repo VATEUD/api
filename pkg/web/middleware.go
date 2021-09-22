@@ -27,6 +27,18 @@ func authMiddleware(next http.Handler) http.Handler {
 
 		authHeader := r.Header.Get("Authorization")
 
+		if server.GuestOnly(uri) {
+			if authHeader != "" {
+				log.Println("This route is for guests only.")
+				res := response.New(w, r, "This route is for guests only.", http.StatusUnauthorized)
+				res.Process()
+				return
+			}
+
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		if len(authHeader) < 1 {
 			log.Println("Authentication header not provided.")
 			res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
