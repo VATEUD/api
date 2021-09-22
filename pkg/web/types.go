@@ -1,6 +1,7 @@
 package web
 
 import (
+	"auth/pkg/oauth2"
 	"auth/pkg/vatsim/connect"
 	"github.com/gorilla/mux"
 	"log"
@@ -76,6 +77,15 @@ func (server *Server) loadRoutes() {
 			connect.Validate,
 			false,
 			true,
+		},
+		{
+			"/api/user",
+			[]string{
+				"GET",
+			},
+			oauth2.User,
+			true,
+			false,
 		},
 	}
 }

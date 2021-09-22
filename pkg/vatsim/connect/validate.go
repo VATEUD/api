@@ -183,7 +183,7 @@ func getUserDetails(token Token, userChannel chan UserData) {
 
 		if res.StatusCode == http.StatusUnauthorized {
 			var errorResponse struct {
-				Code int `json:"code"`
+				Code    int    `json:"code"`
 				Message string `json:"message"`
 			}
 

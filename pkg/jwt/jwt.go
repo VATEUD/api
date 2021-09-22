@@ -9,6 +9,7 @@ import (
 
 type Token struct {
 	*jwt.Token
+	MapClaims jwt.MapClaims
 }
 
 func New(tokenString string) (*Token, error) {
@@ -30,5 +31,11 @@ func New(tokenString string) (*Token, error) {
 		return nil, err
 	}
 
-	return &Token{token}, nil
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if !ok {
+		return nil, errors.New("Token claims could not be converted")
+	}
+
+	return &Token{token, claims}, nil
 }

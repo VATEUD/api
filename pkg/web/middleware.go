@@ -3,6 +3,7 @@ package web
 import (
 	"auth/pkg/jwt"
 	"auth/pkg/response"
+	"fmt"
 	"golang.org/x/time/rate"
 	"log"
 	"net/http"
@@ -70,6 +71,17 @@ func authMiddleware(next http.Handler) http.Handler {
 			res.Process()
 			return
 		}
+
+		cid, ok := token.MapClaims["cid"]
+
+		if !ok {
+			log.Println("Invalid token provided. Token claims could not be parsed.")
+			res := response.New(w, r, "Invalid token provided.", http.StatusUnauthorized)
+			res.Process()
+			return
+		}
+
+		r.Header.Set("cid", fmt.Sprintf("%v", cid))
 
 		next.ServeHTTP(w, r)
 	})
