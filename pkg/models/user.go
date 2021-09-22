@@ -1,9 +1,6 @@
 package models
 
 import (
-	"auth/pkg/vatsim/connect"
-	"encoding/json"
-	"fmt"
 	"time"
 )
 
@@ -24,42 +21,4 @@ type User struct {
 	SubdivisionName string    `json:"subdivision_name" gorm:"type:varchar(255);column:subdivision_name"`
 	CreatedAt       time.Time `json:"created_at" gorm:"type:timestamp;column:created_at"`
 	UpdatedAt       time.Time `json:"updated_at" gorm:"type:timestamp;column:updated_at"`
-}
-
-func (user User) Json() ([]byte, error) {
-	res := connect.UserData{Data: connect.Data{
-		CID: fmt.Sprintf("%d", user.ID),
-		Personal: connect.Personal{
-			NameFirst: user.NameFirst,
-			NameLast:  user.NameLast,
-			NameFull:  fmt.Sprintf("%s %s", user.NameFirst, user.NameLast),
-			Email:     user.Email,
-			Country: connect.Country{
-				ID:   user.CountryID,
-				Name: user.CountryName,
-			},
-		},
-		Vatsim: connect.Vatsim{
-			Rating: connect.Rating{
-				ID: user.Rating,
-			},
-			PilotRating: connect.PilotRating{
-				ID: user.PilotRating,
-			},
-			Region: connect.Region{
-				ID:   user.RegionID,
-				Name: user.RegionName,
-			},
-			Division: connect.Division{
-				ID:   user.DivisionID,
-				Name: user.DivisionName,
-			},
-			Subdivision: connect.Subdivision{
-				ID:   user.SubdivisionID,
-				Name: user.SubdivisionName,
-			},
-		},
-	}}
-
-	return json.Marshal(res)
 }

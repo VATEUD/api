@@ -4,6 +4,8 @@ import (
 	"auth/internal/pkg/database"
 	"auth/pkg/models"
 	"auth/pkg/response"
+	"auth/pkg/vatsim/connect"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
@@ -28,7 +30,7 @@ func User(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := user.Json()
+	bytes, err := userJson(user)
 
 	if err != nil {
 		log.Printf("Error occurred while marshalling the response on /api/user. Error: %s.", err.Error())
@@ -43,4 +45,42 @@ func User(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write(bytes); err != nil {
 		log.Println(err.Error())
 	}
+}
+
+func userJson(user models.User) ([]byte, error) {
+	res := connect.UserData{Data: connect.Data{
+		CID: fmt.Sprintf("%d", user.ID),
+		Personal: connect.Personal{
+			NameFirst: user.NameFirst,
+			NameLast:  user.NameLast,
+			NameFull:  fmt.Sprintf("%s %s", user.NameFirst, user.NameLast),
+			Email:     user.Email,
+			Country: connect.Country{
+				ID:   user.CountryID,
+				Name: user.CountryName,
+			},
+		},
+		Vatsim: connect.Vatsim{
+			Rating: connect.Rating{
+				ID: user.Rating,
+			},
+			PilotRating: connect.PilotRating{
+				ID: user.PilotRating,
+			},
+			Region: connect.Region{
+				ID:   user.RegionID,
+				Name: user.RegionName,
+			},
+			Division: connect.Division{
+				ID:   user.DivisionID,
+				Name: user.DivisionName,
+			},
+			Subdivision: connect.Subdivision{
+				ID:   user.SubdivisionID,
+				Name: user.SubdivisionName,
+			},
+		},
+	}}
+
+	return json.Marshal(res)
 }
