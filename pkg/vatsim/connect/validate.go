@@ -173,16 +173,32 @@ func getUserDetails(token Token, userChannel chan UserData) {
 		return
 	}
 
-	if res.StatusCode != 200 {
-		userChannel <- UserData{err: errors.New(fmt.Sprintf("expected code 200, got %d", res.StatusCode))}
-		return
-	}
-
 	defer func(closer io.ReadCloser) {
 		if err := closer.Close(); err != nil {
 			log.Println("failed to close the body. Error:", err.Error())
 		}
 	}(res.Body)
+
+	if res.StatusCode != 200 {
+
+		if res.StatusCode == http.StatusUnauthorized {
+			var errorResponse struct {
+				Code    int    `json:"code"`
+				Message string `json:"message"`
+			}
+
+			if err := json.NewDecoder(res.Body).Decode(&errorResponse); err != nil {
+				userChannel <- UserData{err: errors.New(fmt.Sprintf("expected code 200, got %d. Error: %s.", res.StatusCode, err.Error()))}
+				return
+			}
+
+			userChannel <- UserData{err: errors.New(errorResponse.Message)}
+			return
+		}
+
+		userChannel <- UserData{err: errors.New(fmt.Sprintf("expected code 200, got %d", res.StatusCode))}
+		return
+	}
 
 	var user UserData
 

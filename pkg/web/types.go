@@ -1,8 +1,10 @@
 package web
 
 import (
+	"auth/pkg/oauth2"
 	"auth/pkg/vatsim/connect"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
@@ -33,6 +35,7 @@ func (server *Server) Start() error {
 }
 
 func (server *Server) registerRoutes() {
+	log.Println("Registering the routes")
 	server.loadRoutes()
 	for _, h := range server.handlers {
 		server.router.HandleFunc(h.Path, h.Function).Methods(h.Methods...)
@@ -75,10 +78,20 @@ func (server *Server) loadRoutes() {
 			false,
 			true,
 		},
+		{
+			"/api/user",
+			[]string{
+				"GET",
+			},
+			oauth2.User,
+			true,
+			false,
+		},
 	}
 }
 
 func (server *Server) registerMiddlewares() {
+	log.Println("Registering the middlewares")
 	server.loadMiddlewares()
 	for _, m := range server.middlewares {
 		server.router.Use(m.Function)
@@ -102,6 +115,19 @@ func (server Server) NeedsAuth(uri string) bool {
 	for _, route := range server.handlers {
 		if route.Path == uri {
 			if route.AuthNeeded {
+				return true
+			}
+			break
+		}
+	}
+
+	return false
+}
+
+func (server Server) GuestOnly(uri string) bool {
+	for _, route := range server.handlers {
+		if route.Path == uri {
+			if route.GuestOnly {
 				return true
 			}
 			break
