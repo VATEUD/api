@@ -30,7 +30,7 @@ func User(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := userJson(user)
+	bytes, err := connectJson(user)
 
 	if err != nil {
 		log.Printf("Error occurred while marshalling the response on /api/user. Error: %s.", err.Error())
@@ -47,7 +47,7 @@ func User(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func userJson(user models.User) ([]byte, error) {
+func connectJson(user models.User) ([]byte, error) {
 	res := connect.UserData{Data: connect.Data{
 		CID: fmt.Sprintf("%d", user.ID),
 		Personal: connect.Personal{
