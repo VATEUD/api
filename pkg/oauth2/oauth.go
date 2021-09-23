@@ -16,7 +16,7 @@ import (
 func User(w http.ResponseWriter, r *http.Request) {
 	cid := r.Header.Get("cid")
 	user := models.User{}
-	if err := database.DB.Where("id = ?", cid).First(&user).Error; err != nil {
+	if err := database.DB.Central.Where("id = ?", cid).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Printf("User not found. CID #%s.\n", cid)
 			res := response.New(w, r, fmt.Sprintf("User not found. CID #%d.\n", cid), http.StatusNotFound)
