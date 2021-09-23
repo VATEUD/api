@@ -2,6 +2,7 @@ package web
 
 import (
 	"auth/pkg/oauth2"
+	"auth/pkg/response"
 	"auth/pkg/vatsim/connect"
 	"github.com/gorilla/mux"
 	"log"
@@ -40,6 +41,7 @@ func (server *Server) registerRoutes() {
 	for _, h := range server.handlers {
 		server.router.HandleFunc(h.Path, h.Function).Methods(h.Methods...)
 	}
+	server.router.NotFoundHandler = http.HandlerFunc(response.NotFoundHandler)
 	server.updateServerHandler()
 }
 
