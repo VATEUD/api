@@ -100,6 +100,15 @@ func (server *Server) loadRoutes() {
 			false,
 			false,
 		},
+		{
+			"/api/division/instructors",
+			[]string{
+				"GET",
+			},
+			division.Instructors,
+			false,
+			false,
+		},
 	}
 }
 

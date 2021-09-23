@@ -3,7 +3,7 @@ package central
 import "time"
 
 type OauthClient struct {
-	ID                   uint      `json:"id" gorm:"primaryKey;type:bigint(20);unsigned;column:id"`
+	ID                   uint      `json:"-" gorm:"primaryKey;type:bigint(20);unsigned;column:id"`
 	UserID               int       `json:"user_id" gorm:"primaryKey;type:bigint(20);unsigned;column:user_id"`
 	Name                 string    `json:"name" gorm:"type:varchar(255);column:name"`
 	Secret               string    `json:"-" gorm:"type:varchar(100);column:secret"`

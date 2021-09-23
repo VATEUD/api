@@ -5,7 +5,7 @@ import (
 )
 
 type DivisionExaminer struct {
-	ID        uint      `json:"id" gorm:"primaryKey;type:int(11);unsigned;column:id"`
+	ID        uint      `json:"-" gorm:"primaryKey;type:int(11);unsigned;column:id"`
 	UserID    uint      `json:"user_id" gorm:"primaryKey;type:int(11);unsigned;unique;column:user_id"`
 	Name      string    `json:"name" gorm:"type:varchar(255);column:name"`
 	UpTo      int       `json:"-" gorm:"type:smallint(6);column:up_to"`
