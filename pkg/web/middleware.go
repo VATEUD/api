@@ -90,7 +90,9 @@ func authMiddleware(next http.Handler) http.Handler {
 func rateLimitingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !limiter.Allow() {
-			w.WriteHeader(http.StatusTooManyRequests)
+			log.Printf("Too many requests from the following IP %s", r.Header.Get("IP"))
+			res := response.New(w, r, "Too many requests.", http.StatusTooManyRequests)
+			res.Process()
 			return
 		}
 
