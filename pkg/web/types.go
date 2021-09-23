@@ -2,6 +2,7 @@ package web
 
 import (
 	"auth/pkg/api/division"
+	"auth/pkg/api/news"
 	"auth/pkg/oauth2"
 	"auth/pkg/response"
 	"auth/pkg/vatsim/connect"
@@ -106,6 +107,15 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			division.Instructors,
+			false,
+			false,
+		},
+		{
+			"/api/news",
+			[]string{
+				"GET",
+			},
+			news.News,
 			false,
 			false,
 		},

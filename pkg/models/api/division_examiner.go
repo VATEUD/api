@@ -5,14 +5,14 @@ import (
 )
 
 type DivisionExaminer struct {
-	ID        uint      `json:"-" gorm:"primaryKey;type:int(11);unsigned;column:id"`
-	UserID    uint      `json:"user_id" gorm:"primaryKey;type:int(11);unsigned;unique;column:user_id"`
-	Name      string    `json:"name" gorm:"type:varchar(255);column:name"`
-	UpTo      int       `json:"-" gorm:"type:smallint(6);column:up_to"`
-	UpToString string `json:"up_to"`
-	Callsign  string    `json:"callsign" gorm:"type:varchar(255);column:callsign"`
-	CreatedAt time.Time `json:"created_at" gorm:"type:timestamp;column:created_at"`
-	UpdatedAt time.Time `json:"updated_at" gorm:"type:timestamp;column:updated_at"`
+	ID         uint      `json:"-" gorm:"primaryKey;type:int(11);unsigned;column:id"`
+	UserID     uint      `json:"user_id" gorm:"primaryKey;type:int(11);unsigned;unique;column:user_id"`
+	Name       string    `json:"name" gorm:"type:varchar(255);column:name"`
+	UpTo       int       `json:"-" gorm:"type:smallint(6);column:up_to"`
+	UpToString string    `json:"up_to"`
+	Callsign   string    `json:"callsign" gorm:"type:varchar(255);column:callsign"`
+	CreatedAt  time.Time `json:"created_at" gorm:"type:timestamp;column:created_at"`
+	UpdatedAt  time.Time `json:"updated_at" gorm:"type:timestamp;column:updated_at"`
 }
 
 func (examiner *DivisionExaminer) SetUpTo() {
