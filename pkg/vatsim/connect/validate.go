@@ -1,10 +1,10 @@
 package connect
 
 import (
-	"auth/internal/pkg/database"
-	"auth/pkg/models"
-	"auth/pkg/response"
-	"auth/utils"
+	"api/internal/pkg/database"
+	"api/pkg/models/central"
+	"api/pkg/response"
+	"api/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -211,8 +211,8 @@ func getUserDetails(token Token, userChannel chan UserData) {
 }
 
 func saveUser(data Data, saveChannel chan error) {
-	user := models.User{}
-	if err := database.DB.Where("id = ?", data.CID).First(&user).Error; err != nil {
+	user := central.User{}
+	if err := database.DB.Central.Where("id = ?", data.CID).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			cid, err := strconv.Atoi(data.CID)
 			if err != nil {
@@ -220,7 +220,7 @@ func saveUser(data Data, saveChannel chan error) {
 				return
 			}
 
-			user = models.User{
+			user = central.User{
 				ID:              uint(cid),
 				NameFirst:       data.Personal.NameFirst,
 				NameLast:        data.Personal.NameLast,
@@ -239,7 +239,7 @@ func saveUser(data Data, saveChannel chan error) {
 				UpdatedAt:       time.Now().UTC(),
 			}
 
-			if err := database.DB.Create(&user).Error; err != nil {
+			if err := database.DB.Central.Create(&user).Error; err != nil {
 				saveChannel <- err
 				return
 			}
@@ -263,7 +263,7 @@ func saveUser(data Data, saveChannel chan error) {
 		user.SubdivisionName = data.Vatsim.Subdivision.Name
 		user.UpdatedAt = time.Now().UTC()
 
-		if err := database.DB.Save(&user).Error; err != nil {
+		if err := database.DB.Central.Save(&user).Error; err != nil {
 			saveChannel <- err
 			return
 		}

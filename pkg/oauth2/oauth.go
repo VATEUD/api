@@ -1,10 +1,10 @@
 package oauth2
 
 import (
-	"auth/internal/pkg/database"
-	"auth/pkg/models"
-	"auth/pkg/response"
-	"auth/pkg/vatsim/connect"
+	"api/internal/pkg/database"
+	"api/pkg/models/central"
+	"api/pkg/response"
+	"api/pkg/vatsim/connect"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,8 +15,8 @@ import (
 
 func User(w http.ResponseWriter, r *http.Request) {
 	cid := r.Header.Get("cid")
-	user := models.User{}
-	if err := database.DB.Where("id = ?", cid).First(&user).Error; err != nil {
+	user := central.User{}
+	if err := database.DB.Central.Where("id = ?", cid).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Printf("User not found. CID #%s.\n", cid)
 			res := response.New(w, r, fmt.Sprintf("User not found. CID #%d.\n", cid), http.StatusNotFound)
@@ -47,7 +47,7 @@ func User(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func connectJson(user models.User) ([]byte, error) {
+func connectJson(user central.User) ([]byte, error) {
 	res := connect.UserData{Data: connect.Data{
 		CID: fmt.Sprintf("%d", user.ID),
 		Personal: connect.Personal{

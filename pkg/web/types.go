@@ -1,8 +1,11 @@
 package web
 
 import (
-	"auth/pkg/oauth2"
-	"auth/pkg/vatsim/connect"
+	"api/pkg/api/division"
+	"api/pkg/api/news"
+	"api/pkg/oauth2"
+	"api/pkg/response"
+	"api/pkg/vatsim/connect"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -40,6 +43,8 @@ func (server *Server) registerRoutes() {
 	for _, h := range server.handlers {
 		server.router.HandleFunc(h.Path, h.Function).Methods(h.Methods...)
 	}
+	server.router.NotFoundHandler = http.HandlerFunc(response.NotFoundHandler)
+	server.router.MethodNotAllowedHandler = http.HandlerFunc(response.MethodNotAllowedHandler)
 	server.updateServerHandler()
 }
 
@@ -85,6 +90,33 @@ func (server *Server) loadRoutes() {
 			},
 			oauth2.User,
 			true,
+			false,
+		},
+		{
+			"/api/division/examiners",
+			[]string{
+				"GET",
+			},
+			division.Examiners,
+			false,
+			false,
+		},
+		{
+			"/api/division/instructors",
+			[]string{
+				"GET",
+			},
+			division.Instructors,
+			false,
+			false,
+		},
+		{
+			"/api/news",
+			[]string{
+				"GET",
+			},
+			news.News,
+			false,
 			false,
 		},
 	}
