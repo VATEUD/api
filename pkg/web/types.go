@@ -42,6 +42,7 @@ func (server *Server) registerRoutes() {
 		server.router.HandleFunc(h.Path, h.Function).Methods(h.Methods...)
 	}
 	server.router.NotFoundHandler = http.HandlerFunc(response.NotFoundHandler)
+	server.router.MethodNotAllowedHandler = http.HandlerFunc(response.MethodNotAllowedHandler)
 	server.updateServerHandler()
 }
 
