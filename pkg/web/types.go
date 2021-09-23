@@ -1,11 +1,11 @@
 package web
 
 import (
-	"auth/pkg/api/division"
-	"auth/pkg/api/news"
-	"auth/pkg/oauth2"
-	"auth/pkg/response"
-	"auth/pkg/vatsim/connect"
+	"api/pkg/api/division"
+	"api/pkg/api/news"
+	"api/pkg/oauth2"
+	"api/pkg/response"
+	"api/pkg/vatsim/connect"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"

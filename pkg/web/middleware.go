@@ -1,8 +1,8 @@
 package web
 
 import (
-	"auth/pkg/jwt"
-	"auth/pkg/response"
+	"api/pkg/jwt"
+	"api/pkg/response"
 	"fmt"
 	"golang.org/x/time/rate"
 	"log"

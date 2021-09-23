@@ -1,7 +1,7 @@
 package database
 
 import (
-	"auth/utils"
+	"api/utils"
 	"fmt"
 	"strings"
 )

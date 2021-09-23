@@ -1,7 +1,7 @@
 package connect
 
 import (
-	"auth/utils"
+	"api/utils"
 	"net/http"
 	"net/url"
 )

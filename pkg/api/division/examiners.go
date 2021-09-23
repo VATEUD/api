@@ -1,10 +1,10 @@
 package division
 
 import (
-	"auth/internal/pkg/database"
-	"auth/pkg/models/api"
-	"auth/pkg/response"
-	"auth/utils"
+	"api/internal/pkg/database"
+	"api/pkg/models/api"
+	"api/pkg/response"
+	"api/utils"
 	"encoding/json"
 	"log"
 	"net/http"

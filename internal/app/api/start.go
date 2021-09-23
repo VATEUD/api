@@ -1,8 +1,8 @@
-package auth
+package api
 
 import (
-	"auth/internal/pkg/database"
-	"auth/pkg/web"
+	"api/internal/pkg/database"
+	"api/pkg/web"
 	"github.com/joho/godotenv"
 	"log"
 	"os"

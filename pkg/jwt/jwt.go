@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	"auth/utils"
+	"api/utils"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
