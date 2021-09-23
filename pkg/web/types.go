@@ -1,6 +1,7 @@
 package web
 
 import (
+	"auth/pkg/api/division"
 	"auth/pkg/oauth2"
 	"auth/pkg/response"
 	"auth/pkg/vatsim/connect"
@@ -88,6 +89,15 @@ func (server *Server) loadRoutes() {
 			},
 			oauth2.User,
 			true,
+			false,
+		},
+		{
+			"/api/division/examiners",
+			[]string{
+				"GET",
+			},
+			division.Examiners,
+			false,
 			false,
 		},
 	}

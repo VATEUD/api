@@ -19,7 +19,7 @@ var (
 
 func Connect() {
 	DB = &Database{
-		API: connect(utils.Getenv("API_DB_NAME", "")),
+		API:     connect(utils.Getenv("API_DB_NAME", "")),
 		Central: connect(utils.Getenv("CENTRAL_DB_NAME", "")),
 	}
 }
