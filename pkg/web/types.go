@@ -3,6 +3,7 @@ package web
 import (
 	"api/pkg/api/division"
 	"api/pkg/api/news"
+	"api/pkg/api/subdivision"
 	"api/pkg/oauth2"
 	"api/pkg/response"
 	"api/pkg/vatsim/connect"
@@ -125,6 +126,15 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			news.NewsShow,
+			false,
+			false,
+		},
+		{
+			"/api/subdivisions",
+			[]string{
+				"GET",
+			},
+			subdivision.Subdivisions,
 			false,
 			false,
 		},
