@@ -212,7 +212,7 @@ func getUserDetails(token Token, userChannel chan UserData) {
 
 func saveUser(data Data, saveChannel chan error) {
 	user := models.User{}
-	if err := database.DB.Central.Where("id = ?", data.CID).First(&user).Error; err != nil {
+	if err := database.DB.Where("id = ?", data.CID).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			cid, err := strconv.Atoi(data.CID)
 			if err != nil {
@@ -239,7 +239,7 @@ func saveUser(data Data, saveChannel chan error) {
 				UpdatedAt:       time.Now().UTC(),
 			}
 
-			if err := database.DB.Central.Create(&user).Error; err != nil {
+			if err := database.DB.Create(&user).Error; err != nil {
 				saveChannel <- err
 				return
 			}
@@ -263,7 +263,7 @@ func saveUser(data Data, saveChannel chan error) {
 		user.SubdivisionName = data.Vatsim.Subdivision.Name
 		user.UpdatedAt = time.Now().UTC()
 
-		if err := database.DB.Central.Save(&user).Error; err != nil {
+		if err := database.DB.Save(&user).Error; err != nil {
 			saveChannel <- err
 			return
 		}

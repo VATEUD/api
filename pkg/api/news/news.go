@@ -16,7 +16,7 @@ import (
 func NewsIndex(w http.ResponseWriter, r *http.Request) {
 	var news []models.News
 
-	if err := database.DB.API.Find(&news).Error; err != nil {
+	if err := database.DB.Find(&news).Error; err != nil {
 		log.Println("Error occurred while fetching news from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching news.", http.StatusInternalServerError)
 		res.Process()
@@ -44,7 +44,7 @@ func NewsShow(w http.ResponseWriter, r *http.Request) {
 
 	news := models.News{}
 
-	if err := database.DB.API.Where("id = ?", attrs["id"]).First(&news).Error; err != nil {
+	if err := database.DB.Where("id = ?", attrs["id"]).First(&news).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Printf("News #%s not found.\n", attrs["id"])
 			res := response.New(w, r, "News article not found.", http.StatusNotFound)

@@ -13,15 +13,12 @@ const (
 )
 
 var (
-	DB      *Database
+	DB      *gorm.DB
 	attempt = 1
 )
 
 func Connect() {
-	DB = &Database{
-		API:     connect(utils.Getenv("API_DB_NAME", "")),
-		Central: connect(utils.Getenv("CENTRAL_DB_NAME", "")),
-	}
+	DB = connect(utils.Getenv("CENTRAL_DB_NAME", ""))
 }
 
 func connect(database string) *gorm.DB {
