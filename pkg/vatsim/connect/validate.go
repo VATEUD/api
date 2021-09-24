@@ -2,7 +2,7 @@ package connect
 
 import (
 	"api/internal/pkg/database"
-	"api/pkg/models/central"
+	"api/pkg/models"
 	"api/pkg/response"
 	"api/utils"
 	"encoding/json"
@@ -211,7 +211,7 @@ func getUserDetails(token Token, userChannel chan UserData) {
 }
 
 func saveUser(data Data, saveChannel chan error) {
-	user := central.User{}
+	user := models.User{}
 	if err := database.DB.Central.Where("id = ?", data.CID).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			cid, err := strconv.Atoi(data.CID)
@@ -220,7 +220,7 @@ func saveUser(data Data, saveChannel chan error) {
 				return
 			}
 
-			user = central.User{
+			user = models.User{
 				ID:              uint(cid),
 				NameFirst:       data.Personal.NameFirst,
 				NameLast:        data.Personal.NameLast,

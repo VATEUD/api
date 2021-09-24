@@ -115,7 +115,16 @@ func (server *Server) loadRoutes() {
 			[]string{
 				"GET",
 			},
-			news.News,
+			news.NewsIndex,
+			false,
+			false,
+		},
+		{
+			"/api/news/{id}",
+			[]string{
+				"GET",
+			},
+			news.NewsShow,
 			false,
 			false,
 		},
