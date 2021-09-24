@@ -138,6 +138,42 @@ func (server *Server) loadRoutes() {
 			false,
 			false,
 		},
+		{
+			"/api/subdivisions/view",
+			[]string{
+				"GET",
+			},
+			subdivision.Subdivisions,
+			false,
+			false,
+		},
+		{
+			"/api/subdivisions/view/{subdivision}",
+			[]string{
+				"GET",
+			},
+			subdivision.Subdivision,
+			false,
+			false,
+		},
+		{
+			"/api/subdivisions/instructors",
+			[]string{
+				"GET",
+			},
+			subdivision.Instructors,
+			false,
+			false,
+		},
+		{
+			"/api/subdivisions/instructors/{subdivision}",
+			[]string{
+				"GET",
+			},
+			subdivision.InstructorsFilter,
+			false,
+			false,
+		},
 	}
 }
 
