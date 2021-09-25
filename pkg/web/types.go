@@ -7,6 +7,7 @@ import (
 	"api/pkg/oauth2"
 	"api/pkg/response"
 	"api/pkg/vatsim/connect"
+	"api/pkg/vatsim/myvatsim"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -180,6 +181,15 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			division.Staff,
+			false,
+			false,
+		},
+		{
+			"/api/events",
+			[]string{
+				"GET",
+			},
+			myvatsim.Events,
 			false,
 			false,
 		},
