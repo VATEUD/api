@@ -174,6 +174,15 @@ func (server *Server) loadRoutes() {
 			false,
 			false,
 		},
+		{
+			"/api/staff",
+			[]string{
+				"GET",
+			},
+			division.Staff,
+			false,
+			false,
+		},
 	}
 }
 
