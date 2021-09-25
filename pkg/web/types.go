@@ -185,11 +185,20 @@ func (server *Server) loadRoutes() {
 			false,
 		},
 		{
-			"/api/events",
+			"/api/events/view",
 			[]string{
 				"GET",
 			},
-			myvatsim.Events,
+			myvatsim.AllEvents,
+			false,
+			false,
+		},
+		{
+			"/api/events/view/{amount}",
+			[]string{
+				"GET",
+			},
+			myvatsim.EventsByAmount,
 			false,
 			false,
 		},
