@@ -1,5 +1,9 @@
 package myvatsim
 
+import (
+	"time"
+)
+
 // EventsFeed represents the myVATSIM datafeed structure
 type EventsFeed struct {
 	Data []Event `json:"data"`
@@ -41,4 +45,27 @@ type Route struct {
 	Departure string `json:"departure"`
 	Arrival   string `json:"arrival"`
 	Route     string `json:"route"`
+}
+
+func (data EventsFeed) FilterDays(days uint) []Event {
+	var events []Event
+
+	date := time.Now().UTC().Add(time.Hour * time.Duration(24*days))
+
+	for _, event := range data.Data {
+		start, err := time.Parse(time.RFC3339, event.StartTime)
+		if err != nil {
+			continue
+		}
+
+		if start.YearDay() == date.YearDay() {
+			events = append(events, event)
+		}
+
+		if date.YearDay() < start.YearDay() {
+			break
+		}
+	}
+
+	return events
 }

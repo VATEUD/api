@@ -202,6 +202,15 @@ func (server *Server) loadRoutes() {
 			false,
 			false,
 		},
+		{
+			"/api/events/filter/days/{days}",
+			[]string{
+				"GET",
+			},
+			myvatsim.EventsFilterDays,
+			false,
+			false,
+		},
 	}
 }
 
