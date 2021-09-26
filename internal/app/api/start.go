@@ -2,6 +2,7 @@ package api
 
 import (
 	"api/internal/pkg/database"
+	"api/pkg/cache"
 	"api/pkg/web"
 	"github.com/joho/godotenv"
 	"log"
@@ -24,6 +25,7 @@ func Start() {
 
 	log.Println("Connecting to the database")
 	database.Connect()
+	cache.New()
 
 	server := web.New()
 

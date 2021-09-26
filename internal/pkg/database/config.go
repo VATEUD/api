@@ -15,7 +15,7 @@ const (
 
 // retrieveDatabaseCredentials retrieves credentials that are needed for authentication in order to execute mysqldump command
 func retrieveDatabaseCredentials(db string) credentials {
-	if !isUsingSingleCredentials() {
+	if isUsingDBPrefix() {
 		name := strings.ToUpper(db)
 
 		return credentials{
@@ -36,6 +36,6 @@ func retrieveDatabaseCredentials(db string) credentials {
 	}
 }
 
-func isUsingSingleCredentials() bool {
-	return utils.Getenv("SINGLE_DB_CREDENTIALS", "false") == "true"
+func isUsingDBPrefix() bool {
+	return utils.Getenv("DB_PREFIX", "false") == "true"
 }

@@ -3,9 +3,12 @@ package web
 import (
 	"api/pkg/api/division"
 	"api/pkg/api/news"
+	"api/pkg/api/subdivision"
+	"api/pkg/api/uploads"
 	"api/pkg/oauth2"
 	"api/pkg/response"
 	"api/pkg/vatsim/connect"
+	"api/pkg/vatsim/myvatsim"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -24,7 +27,6 @@ type Handler struct {
 	Function   http.HandlerFunc
 	AuthNeeded bool
 	GuestOnly  bool
-	AllowCORS  bool
 }
 
 type Middleware struct {
@@ -56,6 +58,17 @@ func (server *Server) updateServerHandler() {
 func (server *Server) loadRoutes() {
 	server.handlers = []Handler{
 		{
+			"/test",
+			[]string{
+				"GET",
+			},
+			func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("test"))
+			},
+			true,
+			false,
+		},
+		{
 			"/auth/login",
 			[]string{
 				"GET",
@@ -63,7 +76,6 @@ func (server *Server) loadRoutes() {
 			connect.Login,
 			false,
 			true,
-			false,
 		},
 		{
 			"/auth/validate",
@@ -73,7 +85,6 @@ func (server *Server) loadRoutes() {
 			connect.Validate,
 			false,
 			true,
-			false,
 		},
 		{
 			"/api/user",
@@ -83,7 +94,6 @@ func (server *Server) loadRoutes() {
 			oauth2.User,
 			true,
 			false,
-			true,
 		},
 		{
 			"/api/division/examiners",
@@ -93,7 +103,6 @@ func (server *Server) loadRoutes() {
 			division.Examiners,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/division/instructors",
@@ -103,20 +112,15 @@ func (server *Server) loadRoutes() {
 			division.Instructors,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/news",
 			[]string{
 				"GET",
 			},
-<<<<<<< Updated upstream
-			news.News,
-=======
 			news.NewsIndex,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/news/{id}",
@@ -126,7 +130,6 @@ func (server *Server) loadRoutes() {
 			news.NewsShow,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/subdivisions",
@@ -136,7 +139,6 @@ func (server *Server) loadRoutes() {
 			subdivision.Subdivisions,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/subdivisions/view",
@@ -146,7 +148,6 @@ func (server *Server) loadRoutes() {
 			subdivision.Subdivisions,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/subdivisions/view/{subdivision}",
@@ -156,7 +157,6 @@ func (server *Server) loadRoutes() {
 			subdivision.Subdivision,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/subdivisions/instructors",
@@ -166,7 +166,6 @@ func (server *Server) loadRoutes() {
 			subdivision.Instructors,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/subdivisions/instructors/{subdivision}",
@@ -176,7 +175,6 @@ func (server *Server) loadRoutes() {
 			subdivision.InstructorsFilter,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/staff",
@@ -186,7 +184,6 @@ func (server *Server) loadRoutes() {
 			division.Staff,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/events/view",
@@ -196,7 +193,6 @@ func (server *Server) loadRoutes() {
 			myvatsim.AllEvents,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/events/view/{amount}",
@@ -206,7 +202,6 @@ func (server *Server) loadRoutes() {
 			myvatsim.EventsByAmount,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/events/filter/days/{days}",
@@ -216,7 +211,6 @@ func (server *Server) loadRoutes() {
 			myvatsim.EventsFilterDays,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/uploads/view",
@@ -226,7 +220,6 @@ func (server *Server) loadRoutes() {
 			uploads.List,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/uploads/download/{id}",
@@ -236,7 +229,6 @@ func (server *Server) loadRoutes() {
 			uploads.Download,
 			false,
 			false,
-			true,
 		},
 		{
 			"/api/uploads/filter/{type}",
@@ -244,10 +236,8 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			uploads.Filter,
->>>>>>> Stashed changes
 			false,
 			false,
-			true,
 		},
 	}
 }
@@ -262,10 +252,6 @@ func (server *Server) registerMiddlewares() {
 
 func (server *Server) loadMiddlewares() {
 	server.middlewares = []Middleware{
-		{
-			Name:     "CORS Middleware",
-			Function: corsMiddleware,
-		},
 		{
 			Name:     "Rate limiting middleware",
 			Function: rateLimitingMiddleware,
@@ -294,19 +280,6 @@ func (server Server) GuestOnly(uri string) bool {
 	for _, route := range server.handlers {
 		if route.Path == uri {
 			if route.GuestOnly {
-				return true
-			}
-			break
-		}
-	}
-
-	return false
-}
-
-func (server Server) AllowCors(uri string) bool {
-	for _, route := range server.handlers {
-		if route.Path == uri {
-			if route.AllowCORS {
 				return true
 			}
 			break

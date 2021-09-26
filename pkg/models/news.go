@@ -1,11 +1,11 @@
-package api
+package models
 
 import (
 	"time"
 )
 
 type News struct {
-	ID        uint      `json:"-" gorm:"primaryKey;type:int(11);unsigned;column:id"`
+	ID        uint      `json:"id" gorm:"primaryKey;type:int(11);unsigned;column:id"`
 	Title     string    `json:"title" gorm:"type:varchar(255);column:title"`
 	Body      string    `json:"body" gorm:"type:varchar(65535);column:body"`
 	UserID    uint      `json:"user_id" gorm:"primaryKey;type:int(11);unsigned;column:user_id"`

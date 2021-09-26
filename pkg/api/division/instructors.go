@@ -2,7 +2,7 @@ package division
 
 import (
 	"api/internal/pkg/database"
-	"api/pkg/models/api"
+	"api/pkg/models"
 	"api/pkg/response"
 	"api/utils"
 	"encoding/json"
@@ -11,14 +11,15 @@ import (
 )
 
 func Instructors(w http.ResponseWriter, r *http.Request) {
-	var instructors []api.DivisionInstructor
-	if err := database.DB.API.Order("user_id asc").Find(&instructors).Error; err != nil {
+	utils.Allow(w, "*")
+
+	var instructors []models.DivisionInstructor
+	if err := database.DB.Order("user_id asc").Find(&instructors).Error; err != nil {
 		log.Println("Error occurred while fetching users from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching examiners.", http.StatusInternalServerError)
 		res.Process()
 		return
 	}
-	utils.Allow(w, "*")
 
 	bytes, err := json.Marshal(instructors)
 
