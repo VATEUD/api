@@ -3,6 +3,7 @@ package web
 import (
 	"api/pkg/jwt"
 	"api/pkg/response"
+	"api/utils"
 	"fmt"
 	"golang.org/x/time/rate"
 	"log"
@@ -94,6 +95,18 @@ func rateLimitingMiddleware(next http.Handler) http.Handler {
 			res := response.New(w, r, "Too many requests.", http.StatusTooManyRequests)
 			res.Process()
 			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		uri := strings.Split(r.RequestURI, "?")[0]
+
+		if server.AllowCors(uri) {
+			utils.Allow(w, "*")
 		}
 
 		next.ServeHTTP(w, r)
