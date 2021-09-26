@@ -4,6 +4,7 @@ import (
 	"api/pkg/api/division"
 	"api/pkg/api/news"
 	"api/pkg/api/subdivision"
+	"api/pkg/api/uploads"
 	"api/pkg/oauth2"
 	"api/pkg/response"
 	"api/pkg/vatsim/connect"
@@ -208,6 +209,33 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			myvatsim.EventsFilterDays,
+			false,
+			false,
+		},
+		{
+			"/api/uploads/view",
+			[]string{
+				"GET",
+			},
+			uploads.List,
+			false,
+			false,
+		},
+		{
+			"/api/uploads/download/{id}",
+			[]string{
+				"GET",
+			},
+			uploads.Download,
+			false,
+			false,
+		},
+		{
+			"/api/uploads/filter/{type}",
+			[]string{
+				"GET",
+			},
+			uploads.Filter,
 			false,
 			false,
 		},
