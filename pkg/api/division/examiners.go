@@ -11,6 +11,8 @@ import (
 )
 
 func Examiners(w http.ResponseWriter, r *http.Request) {
+	utils.Allow(w, "*")
+
 	var examiners []*models.DivisionExaminer
 	if err := database.DB.Find(&examiners).Error; err != nil {
 		log.Println("Error occurred while fetching users from the DB. Error:", err.Error())
@@ -18,7 +20,6 @@ func Examiners(w http.ResponseWriter, r *http.Request) {
 		res.Process()
 		return
 	}
-	utils.Allow(w, "*")
 
 	for _, examiner := range examiners {
 		examiner.SetUpTo()

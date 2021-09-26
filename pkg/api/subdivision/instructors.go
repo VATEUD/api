@@ -14,9 +14,10 @@ import (
 )
 
 func Instructors(w http.ResponseWriter, r *http.Request) {
-	var instructors []models.SubdivisionInstructor
+	utils.Allow(w, "*")
+	var instructors []models.Subdivision
 
-	if err := database.DB.Find(&instructors).Error; err != nil {
+	if err := database.DB.Preload("Instructors").Order("name asc").Find(&instructors).Error; err != nil {
 		log.Println("Error occurred while fetching subdivision instructors from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching subdivision instructors.", http.StatusInternalServerError)
 		res.Process()
@@ -32,7 +33,6 @@ func Instructors(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.Allow(w, "*")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(bytes); err != nil {
 		log.Println("Error occurred while writing the response. Error:", err.Error())

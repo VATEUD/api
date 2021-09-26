@@ -18,4 +18,3 @@ func New() {
 
 	RedisCache = &Cache{rdb}
 }
-

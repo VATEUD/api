@@ -16,6 +16,7 @@ import (
 
 func EventsFilterDays(w http.ResponseWriter, r *http.Request) {
 
+	utils.Allow(w, "*")
 	attrs := mux.Vars(r)
 
 	val, err := cache.RedisCache.Get(fmt.Sprintf("EVENTS_DAYS_%s", attrs["days"]))
@@ -63,11 +64,10 @@ func EventsFilterDays(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := cache.RedisCache.Set(fmt.Sprintf("EVENTS_DAYS_%s", attrs["days"]), string(bytes), 2 * time.Minute); err != nil {
+	if err := cache.RedisCache.Set(fmt.Sprintf("EVENTS_DAYS_%s", attrs["days"]), string(bytes), 2*time.Minute); err != nil {
 		log.Println("Error saving events to cache. Error:", err.Error())
 	}
 
-	utils.Allow(w, "*")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(bytes); err != nil {
 		log.Println("Error writing the response.")

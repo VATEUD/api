@@ -16,7 +16,7 @@ import (
 func Subdivisions(w http.ResponseWriter, r *http.Request) {
 	var subdivisions []models.Subdivision
 
-	if err := database.DB.Find(&subdivisions).Error; err != nil {
+	if err := database.DB.Order("name asc").Find(&subdivisions).Error; err != nil {
 		log.Println("Error occurred while fetching subdivisions from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching subdivisions.", http.StatusInternalServerError)
 		res.Process()

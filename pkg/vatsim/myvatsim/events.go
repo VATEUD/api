@@ -52,7 +52,7 @@ func AllEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := cache.RedisCache.Set("EVENTS_ALL", string(bytes), 2 * time.Minute); err != nil {
+	if err := cache.RedisCache.Set("EVENTS_ALL", string(bytes), 2*time.Minute); err != nil {
 		log.Println("Error saving events to cache. Error:", err.Error())
 	}
 
@@ -112,7 +112,7 @@ func EventsByAmount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := cache.RedisCache.Set(fmt.Sprintf("EVENTS_%s", attrs["amount"]), string(bytes), 2 * time.Minute); err != nil {
+	if err := cache.RedisCache.Set(fmt.Sprintf("EVENTS_%s", attrs["amount"]), string(bytes), 2*time.Minute); err != nil {
 		log.Println("Error saving events to cache. Error:", err.Error())
 	}
 

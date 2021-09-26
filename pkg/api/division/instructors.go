@@ -11,6 +11,8 @@ import (
 )
 
 func Instructors(w http.ResponseWriter, r *http.Request) {
+	utils.Allow(w, "*")
+
 	var instructors []models.DivisionInstructor
 	if err := database.DB.Order("user_id asc").Find(&instructors).Error; err != nil {
 		log.Println("Error occurred while fetching users from the DB. Error:", err.Error())
@@ -18,7 +20,6 @@ func Instructors(w http.ResponseWriter, r *http.Request) {
 		res.Process()
 		return
 	}
-	utils.Allow(w, "*")
 
 	bytes, err := json.Marshal(instructors)
 
