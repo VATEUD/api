@@ -3,9 +3,12 @@ package web
 import (
 	"api/pkg/api/division"
 	"api/pkg/api/news"
+	"api/pkg/api/subdivision"
+	"api/pkg/api/uploads"
 	"api/pkg/oauth2"
 	"api/pkg/response"
 	"api/pkg/vatsim/connect"
+	"api/pkg/vatsim/myvatsim"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -115,7 +118,124 @@ func (server *Server) loadRoutes() {
 			[]string{
 				"GET",
 			},
-			news.News,
+			news.NewsIndex,
+			false,
+			false,
+		},
+		{
+			"/api/news/{id}",
+			[]string{
+				"GET",
+			},
+			news.NewsShow,
+			false,
+			false,
+		},
+		{
+			"/api/subdivisions",
+			[]string{
+				"GET",
+			},
+			subdivision.Subdivisions,
+			false,
+			false,
+		},
+		{
+			"/api/subdivisions/view",
+			[]string{
+				"GET",
+			},
+			subdivision.Subdivisions,
+			false,
+			false,
+		},
+		{
+			"/api/subdivisions/view/{subdivision}",
+			[]string{
+				"GET",
+			},
+			subdivision.Subdivision,
+			false,
+			false,
+		},
+		{
+			"/api/subdivisions/instructors",
+			[]string{
+				"GET",
+			},
+			subdivision.Instructors,
+			false,
+			false,
+		},
+		{
+			"/api/subdivisions/instructors/{subdivision}",
+			[]string{
+				"GET",
+			},
+			subdivision.InstructorsFilter,
+			false,
+			false,
+		},
+		{
+			"/api/staff",
+			[]string{
+				"GET",
+			},
+			division.Staff,
+			false,
+			false,
+		},
+		{
+			"/api/events/view",
+			[]string{
+				"GET",
+			},
+			myvatsim.AllEvents,
+			false,
+			false,
+		},
+		{
+			"/api/events/view/{amount}",
+			[]string{
+				"GET",
+			},
+			myvatsim.EventsByAmount,
+			false,
+			false,
+		},
+		{
+			"/api/events/filter/days/{days}",
+			[]string{
+				"GET",
+			},
+			myvatsim.EventsFilterDays,
+			false,
+			false,
+		},
+		{
+			"/api/uploads/view",
+			[]string{
+				"GET",
+			},
+			uploads.List,
+			false,
+			false,
+		},
+		{
+			"/api/uploads/download/{id}",
+			[]string{
+				"GET",
+			},
+			uploads.Download,
+			false,
+			false,
+		},
+		{
+			"/api/uploads/filter/{type}",
+			[]string{
+				"GET",
+			},
+			uploads.Filter,
 			false,
 			false,
 		},

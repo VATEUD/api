@@ -1,4 +1,4 @@
-package central
+package models
 
 import "time"
 
