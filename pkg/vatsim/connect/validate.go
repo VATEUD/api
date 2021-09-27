@@ -1,10 +1,10 @@
 package connect
 
 import (
-	"auth/internal/pkg/database"
-	"auth/pkg/models"
-	"auth/pkg/response"
-	"auth/utils"
+	"api/internal/pkg/database"
+	"api/pkg/models"
+	"api/pkg/response"
+	"api/utils"
 	"encoding/json"
 	"errors"
 	"fmt"

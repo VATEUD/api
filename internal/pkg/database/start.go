@@ -1,6 +1,7 @@
 package database
 
 import (
+	"api/utils"
 	"fmt"
 	"github.com/labstack/gommon/log"
 	"gorm.io/driver/mysql"
@@ -17,7 +18,11 @@ var (
 )
 
 func Connect() {
-	config := retrieveDatabaseCredentials()
+	DB = connect(utils.Getenv("CENTRAL_DB_NAME", ""))
+}
+
+func connect(database string) *gorm.DB {
+	config := retrieveDatabaseCredentials(database)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True", config.user, config.password, config.hostname, config.port, config.database)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
@@ -26,11 +31,11 @@ func Connect() {
 			log.Errorf("Error connecting to the database. Error: %s.", err.Error())
 			attempt += 1
 			Connect()
-			return
+			return nil
 		}
 
 		panic("Failed to connect to the database. Aborting...")
 	}
 
-	DB = db
+	return db
 }

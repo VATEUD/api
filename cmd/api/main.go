@@ -1,11 +1,11 @@
 package main
 
 import (
-	"auth/internal/app/auth"
+	"api/internal/app/api"
 	"log"
 )
 
 func main() {
 	log.Println("Starting...")
-	auth.Start()
+	api.Start()
 }

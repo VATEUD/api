@@ -1,10 +1,10 @@
 package oauth2
 
 import (
-	"auth/internal/pkg/database"
-	"auth/pkg/models"
-	"auth/pkg/response"
-	"auth/pkg/vatsim/connect"
+	"api/internal/pkg/database"
+	"api/pkg/models"
+	"api/pkg/response"
+	"api/pkg/vatsim/connect"
 	"encoding/json"
 	"errors"
 	"fmt"

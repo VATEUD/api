@@ -1,8 +1,14 @@
 package web
 
 import (
-	"auth/pkg/oauth2"
-	"auth/pkg/vatsim/connect"
+	"api/pkg/api/division"
+	"api/pkg/api/news"
+	"api/pkg/api/subdivision"
+	"api/pkg/api/uploads"
+	"api/pkg/oauth2"
+	"api/pkg/response"
+	"api/pkg/vatsim/connect"
+	"api/pkg/vatsim/myvatsim"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -21,6 +27,7 @@ type Handler struct {
 	Function   http.HandlerFunc
 	AuthNeeded bool
 	GuestOnly  bool
+	AllowCors  bool
 }
 
 type Middleware struct {
@@ -40,6 +47,8 @@ func (server *Server) registerRoutes() {
 	for _, h := range server.handlers {
 		server.router.HandleFunc(h.Path, h.Function).Methods(h.Methods...)
 	}
+	server.router.NotFoundHandler = http.HandlerFunc(response.NotFoundHandler)
+	server.router.MethodNotAllowedHandler = http.HandlerFunc(response.MethodNotAllowedHandler)
 	server.updateServerHandler()
 }
 
@@ -50,17 +59,6 @@ func (server *Server) updateServerHandler() {
 func (server *Server) loadRoutes() {
 	server.handlers = []Handler{
 		{
-			"/test",
-			[]string{
-				"GET",
-			},
-			func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("test"))
-			},
-			true,
-			false,
-		},
-		{
 			"/auth/login",
 			[]string{
 				"GET",
@@ -68,6 +66,7 @@ func (server *Server) loadRoutes() {
 			connect.Login,
 			false,
 			true,
+			false,
 		},
 		{
 			"/auth/validate",
@@ -77,6 +76,7 @@ func (server *Server) loadRoutes() {
 			connect.Validate,
 			false,
 			true,
+			false,
 		},
 		{
 			"/api/user",
@@ -86,6 +86,167 @@ func (server *Server) loadRoutes() {
 			oauth2.User,
 			true,
 			false,
+			true,
+		},
+		{
+			"/api/division/examiners",
+			[]string{
+				"GET",
+			},
+			division.Examiners,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/division/instructors",
+			[]string{
+				"GET",
+			},
+			division.Instructors,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/news",
+			[]string{
+				"GET",
+			},
+			news.NewsIndex,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/news/{id}",
+			[]string{
+				"GET",
+			},
+			news.NewsShow,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/subdivisions",
+			[]string{
+				"GET",
+			},
+			subdivision.Subdivisions,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/subdivisions/view",
+			[]string{
+				"GET",
+			},
+			subdivision.Subdivisions,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/subdivisions/view/{subdivision}",
+			[]string{
+				"GET",
+			},
+			subdivision.Subdivision,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/subdivisions/instructors",
+			[]string{
+				"GET",
+			},
+			subdivision.Instructors,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/subdivisions/instructors/{subdivision}",
+			[]string{
+				"GET",
+			},
+			subdivision.InstructorsFilter,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/staff",
+			[]string{
+				"GET",
+			},
+			division.Staff,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/events/view",
+			[]string{
+				"GET",
+			},
+			myvatsim.AllEvents,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/events/view/{amount}",
+			[]string{
+				"GET",
+			},
+			myvatsim.EventsByAmount,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/events/filter/days/{days}",
+			[]string{
+				"GET",
+			},
+			myvatsim.EventsFilterDays,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/uploads/view",
+			[]string{
+				"GET",
+			},
+			uploads.List,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/uploads/download/{id}",
+			[]string{
+				"GET",
+			},
+			uploads.Download,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/uploads/filter/{type}",
+			[]string{
+				"GET",
+			},
+			uploads.Filter,
+			false,
+			false,
+			true,
 		},
 		{
 			"/app/authorize",
@@ -137,6 +298,19 @@ func (server Server) GuestOnly(uri string) bool {
 	for _, route := range server.handlers {
 		if route.Path == uri {
 			if route.GuestOnly {
+				return true
+			}
+			break
+		}
+	}
+
+	return false
+}
+
+func (server Server) AllowCors(uri string) bool {
+	for _, route := range server.handlers {
+		if route.Path == uri {
+			if route.AllowCors {
 				return true
 			}
 			break

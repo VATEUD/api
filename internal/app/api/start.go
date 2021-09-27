@@ -1,8 +1,9 @@
-package auth
+package api
 
 import (
-	"auth/internal/pkg/database"
-	"auth/pkg/web"
+	"api/internal/pkg/database"
+	"api/pkg/cache"
+	"api/pkg/web"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -24,6 +25,7 @@ func Start() {
 
 	log.Println("Connecting to the database")
 	database.Connect()
+	cache.New()
 
 	server := web.New()
 
