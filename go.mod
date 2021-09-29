@@ -4,8 +4,8 @@ go 1.17
 
 require (
 	github.com/aws/aws-sdk-go v1.40.49
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-redis/redis/v8 v8.11.3
+	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/gommon v0.3.0
