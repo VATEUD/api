@@ -4,10 +4,12 @@ import (
 	"api/internal/pkg/database"
 	"api/pkg/models"
 	"api/pkg/response"
+	"api/pkg/vatsim/connect"
 	"fmt"
 	"github.com/matoous/go-nanoid/v2"
 	"log"
 	"net/http"
+	"time"
 )
 
 func Authorize(w http.ResponseWriter, r *http.Request) {
@@ -51,4 +53,19 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 		res.Process()
 		return
 	}
+
+	cookie := http.Cookie{
+		Name:       "token",
+		Value:      id,
+		Path:       "/oauth",
+		Domain:     "localhost",
+		Expires:    time.Now().UTC().Add(time.Minute*5),
+		Secure:     true,
+		HttpOnly:   true,
+		SameSite:   1,
+	}
+
+	http.SetCookie(w, &cookie)
+
+	connect.Login(w, r)
 }

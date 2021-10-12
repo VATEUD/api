@@ -30,7 +30,7 @@ func User(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := connectJson(user)
+	bytes, err := connectJson(user, []string{"full_name"})
 
 	if err != nil {
 		log.Printf("Error occurred while marshalling the response on /api/user. Error: %s.", err.Error())
@@ -47,20 +47,30 @@ func User(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func connectJson(user models.User) ([]byte, error) {
-	res := connect.UserData{Data: connect.Data{
-		CID: fmt.Sprintf("%d", user.ID),
-		Personal: connect.Personal{
-			NameFirst: user.NameFirst,
-			NameLast:  user.NameLast,
-			NameFull:  fmt.Sprintf("%s %s", user.NameFirst, user.NameLast),
-			Email:     user.Email,
-			Country: connect.Country{
-				ID:   user.CountryID,
-				Name: user.CountryName,
-			},
-		},
-		Vatsim: connect.Vatsim{
+func connectJson(user models.User, scopes []string) ([]byte, error) {
+	cUser := connect.UserData{}
+
+	cUser.Data.CID = fmt.Sprintf("%d", user.ID)
+
+	if isInScopes(scopes, "full_name") {
+		cUser.Data.Personal.NameFirst = user.NameFirst
+		cUser.Data.Personal.NameLast = user.NameLast
+		cUser.Data.Personal.NameFull = fmt.Sprintf("%s %s", user.NameFirst, user.NameLast)
+	}
+
+	if isInScopes(scopes, "country") {
+		cUser.Data.Personal.Country = connect.Country{
+			ID:   user.CountryID,
+			Name: user.CountryName,
+		}
+	}
+
+	if isInScopes(scopes, "email") {
+		cUser.Data.Personal.Email = user.Email
+	}
+
+	if isInScopes(scopes, "vatsim_details") {
+		cUser.Data.Vatsim = connect.Vatsim{
 			Rating: connect.Rating{
 				ID: user.Rating,
 			},
@@ -79,8 +89,18 @@ func connectJson(user models.User) ([]byte, error) {
 				ID:   user.SubdivisionID,
 				Name: user.SubdivisionName,
 			},
-		},
-	}}
+		}
+	}
 
-	return json.Marshal(res)
+	return json.Marshal(cUser)
+}
+
+func isInScopes(scopes []string, scope string) bool {
+	for _, s := range scopes {
+		if scope == s {
+			return true
+		}
+	}
+
+	return false
 }

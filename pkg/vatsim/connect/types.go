@@ -16,54 +16,54 @@ type UserData struct {
 
 type Data struct {
 	CID      string   `json:"cid"`
-	Personal Personal `json:"personal"`
-	Vatsim   Vatsim   `json:"vatsim"`
+	Personal Personal `json:"personal,omitempty"`
+	Vatsim   Vatsim   `json:"vatsim,omitempty"`
 }
 
 type Personal struct {
-	NameFirst string  `json:"name_first"`
-	NameLast  string  `json:"name_last"`
-	NameFull  string  `json:"name_full"`
-	Email     string  `json:"email"`
-	Country   Country `json:"country"`
+	NameFirst string  `json:"name_first,omitempty"`
+	NameLast  string  `json:"name_last,omitempty"`
+	NameFull  string  `json:"name_full,omitempty"`
+	Email     string  `json:"email,omitempty"`
+	Country   Country `json:"country,omitempty"`
 }
 
 type Country struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 type Vatsim struct {
-	Rating      Rating      `json:"rating"`
-	PilotRating PilotRating `json:"pilotrating"`
-	Region      Region      `json:"region"`
-	Division    Division    `json:"division"`
-	Subdivision Subdivision `json:"subdivision"`
+	Rating      Rating      `json:"rating,omitempty"`
+	PilotRating PilotRating `json:"pilotrating,omitempty"`
+	Region      Region      `json:"region,omitempty"`
+	Division    Division    `json:"division,omitempty"`
+	Subdivision Subdivision `json:"subdivision,omitempty"`
 }
 
 type Rating struct {
-	ID    int    `json:"id"`
-	Long  string `json:"long"`
-	Short string `json:"short"`
+	ID    int    `json:"id,omitempty"`
+	Long  string `json:"long,omitempty"`
+	Short string `json:"short,omitempty"`
 }
 
 type PilotRating struct {
-	ID    int    `json:"id"`
-	Long  string `json:"long"`
-	Short string `json:"short"`
+	ID    int    `json:"id,omitempty"`
+	Long  string `json:"long,omitempty"`
+	Short string `json:"short,omitempty"`
 }
 
 type Division struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 type Subdivision struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 type Region struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
 }
