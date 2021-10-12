@@ -44,7 +44,7 @@ func Callback(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	authCode := models.OauthAuthCode{}
-	if err := database.DB.Debug().Preload("Client").Where("id = ? AND created_at > ?", cookie.Value, time.Now().UTC().Add(-time.Minute*5)).First(&authCode).Error; err != nil {
+	if err := database.DB.Preload("Client").Where("id = ? AND created_at > ?", cookie.Value, time.Now().UTC().Add(-time.Minute*5)).First(&authCode).Error; err != nil {
 		log.Printf("Failed to fetch the token. Error: %s.\n", err.Error())
 		res := response.New(w, r, "Invalid token.", http.StatusInternalServerError)
 		res.Process()
