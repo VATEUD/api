@@ -12,8 +12,7 @@ import (
 var scopes = []string{"full_name", "email", "vatsim_details", "country"}
 
 type authorizationRequest struct {
-	ResponseType, ClientID, RedirectURI, State string
-	Scopes []string
+	ResponseType, ClientID, RedirectURI, State, Scopes string
 }
 
 type requestError struct {
@@ -37,47 +36,49 @@ func newRequest(r *http.Request) (*authorizationRequest, error) {
 		ResponseType: r.Form.Get("response_type"),
 		ClientID:     r.Form.Get("client_id"),
 		RedirectURI:  r.Form.Get("redirect_uri"),
-		Scopes:       strings.Split(r.Form.Get("scope"), " "),
+		Scopes:       r.Form.Get("scope"),
 		State:        r.Form.Get("state"),
 	}, nil
 }
 
-func (request *authorizationRequest) Validate() error {
+func (request *authorizationRequest) Validate() (*models.OauthClient, error) {
 	if len(request.ClientID) < 1 || len(request.ResponseType) < 1 || len(request.RedirectURI) < 1 {
-		return requestError{
+		return nil, requestError{
 			Response: request.formatURL("invalid_request"),
 		}
 	}
 
 	if request.ResponseType != "code" {
-		return requestError{Response: request.formatURL("unsupported_response_type")}
+		return nil, requestError{Response: request.formatURL("unsupported_response_type")}
 	}
 
+	s := strings.Split(request.Scopes, " ")
+
 	// also ensure the first element is an empty string because strings.Split returns an empty string
-	if len(request.Scopes) > 0 && request.Scopes[0] != "" {
-		for _, scope := range request.Scopes {
+	if len(s) > 0 && s[0] != "" {
+		for _, scope := range s {
 			if !request.isValidScope(scope) {
-				return requestError{Response: request.formatURL("invalid_scope")}
+				return nil, requestError{Response: request.formatURL("invalid_scope")}
 			}
 		}
 	} else {
-		request.Scopes = scopes
+		request.Scopes = strings.Join(s, " ")
 	}
 
 	client := models.OauthClient{}
 	if err := database.DB.Where("id = ?", request.ClientID).First(&client).Error; err != nil {
-		return requestError{Response: request.formatURL("unauthorized_client")}
+		return nil, requestError{Response: request.formatURL("unauthorized_client")}
 	}
 
 	if client.Revoked {
-		return requestError{Response: request.formatURL("unauthorized_client")}
+		return nil, requestError{Response: request.formatURL("unauthorized_client")}
 	}
 
 	if !client.IsValidRedirectURI(request.RedirectURI) {
-		return requestError{Response: request.formatURL("unauthorized_client")}
+		return nil, requestError{Response: request.formatURL("unauthorized_client")}
 	}
 
-	return nil
+	return &client, nil
 }
 
 func (request *authorizationRequest) formatURL(err string) url.Values {
