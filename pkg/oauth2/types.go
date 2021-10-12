@@ -62,7 +62,7 @@ func (request *authorizationRequest) Validate() (*models.OauthClient, error) {
 			}
 		}
 	} else {
-		request.Scopes = strings.Join(s, " ")
+		request.Scopes = strings.Join(scopes, " ")
 	}
 
 	client := models.OauthClient{}
