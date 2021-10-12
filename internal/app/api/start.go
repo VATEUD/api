@@ -3,7 +3,6 @@ package api
 import (
 	"api/internal/pkg/database"
 	"api/pkg/cache"
-	"api/pkg/models"
 	"api/pkg/web"
 	"github.com/joho/godotenv"
 	"log"
@@ -27,8 +26,6 @@ func Start() {
 	log.Println("Connecting to the database")
 	database.Connect()
 	cache.New()
-
-	database.DB.AutoMigrate(models.OauthAuthCode{})
 
 	server := web.New()
 
