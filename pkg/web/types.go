@@ -249,13 +249,14 @@ func (server *Server) loadRoutes() {
 			true,
 		},
 		{
-			"/app/authorize",
+			"/oauth/authorize",
 			[]string{
 				"GET",
 			},
 			oauth2.Authorize,
 			false,
 			true,
+			false,
 		},
 	}
 }

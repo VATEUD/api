@@ -1,21 +1,24 @@
 package oauth2
 
 import (
-	"auth/pkg/response"
+	"api/pkg/response"
+	"fmt"
 	"log"
 	"net/http"
-	"text/template"
 )
 
 func Authorize(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("web/template/authorize.html")
+	req, err := newRequest(r)
 
 	if err != nil {
-		log.Println("Error occurred while parsing the file. Error:", err.Error())
+		log.Println("Error occurred while creating a new request. Error:", err.Error())
 		res := response.New(w, r, "Internal server error occurred.", http.StatusInternalServerError)
 		res.Process()
 		return
 	}
 
-	tmpl.Execute(w, nil)
+	if err := req.Validate(); err != nil {
+		http.Redirect(w, r, fmt.Sprintf("%s?%s", r.Form.Get("redirect_uri"), err.Error()), http.StatusFound)
+		return
+	}
 }
