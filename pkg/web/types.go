@@ -268,6 +268,16 @@ func (server *Server) loadRoutes() {
 			true,
 			false,
 		},
+		{
+			"/oauth/token",
+			[]string{
+				"POST",
+			},
+			oauth2.Token,
+			false,
+			true,
+			false,
+		},
 	}
 }
 

@@ -124,3 +124,26 @@ func (request authorizationRequest) isValidScope(scope string) bool {
 
 	return false
 }
+
+type accessTokenRequest struct {
+	ContentType, GrantType, Code, RedirectURI, ClientID, ClientSecret string
+}
+
+func newAccessTokenRequest(r *http.Request) (*accessTokenRequest, error) {
+	if r == nil {
+		return nil, errors.New("please provide a valid request")
+	}
+
+	if err := r.ParseForm(); err != nil {
+		return nil, err
+	}
+
+	return &accessTokenRequest{
+		ContentType:  r.Header.Get("Content-type"),
+		GrantType:    r.PostForm.Get("grant_type"),
+		Code:         r.PostForm.Get("code"),
+		RedirectURI:  r.PostForm.Get("redirect_uri"),
+		ClientID:     r.PostForm.Get("client_id"),
+		ClientSecret: r.PostForm.Get("client_secret"),
+	}, nil
+}
