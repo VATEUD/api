@@ -58,7 +58,7 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 		Name:       "token",
 		Value:      id,
 		Path:       "/oauth",
-		Domain:     "localhost",
+		Domain:     r.URL.Host,
 		Expires:    time.Now().UTC().Add(time.Minute*5),
 		Secure:     true,
 		HttpOnly:   true,
