@@ -3,12 +3,10 @@ package connect
 import (
 	"api/internal/pkg/database"
 	"api/pkg/models"
-	"api/pkg/response"
 	"api/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
 	"io"
 	"log"
@@ -23,21 +21,16 @@ const (
 	grantType = "authorization_code"
 )
 
-func Validate(w http.ResponseWriter, r *http.Request) {
+func Validate(w http.ResponseWriter, r *http.Request) (*UserData, error) {
 	if err := r.URL.Query().Get("error"); len(err) > 0 {
 		e := getError(err)
-
-		res := response.New(w, r, e, http.StatusExpectationFailed)
-		res.Process()
-		return
+		return nil, errors.New(e)
 	}
 
 	code := r.URL.Query().Get("code")
 
 	if len(code) < 0 {
-		res := response.New(w, r, "Code was not provided.", http.StatusBadRequest)
-		res.Process()
-		return
+		return nil, errors.New("code was not provided")
 	}
 
 	tokenChannel := make(chan Token)
@@ -45,10 +38,7 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 	token := <-tokenChannel
 
 	if token.err != nil {
-		log.Printf("Internal server error occurred while fetching the user details 44. Error: %s.", token.err.Error())
-		res := response.New(w, r, "Internal server error occurred while fetching the user details 44.", http.StatusInternalServerError)
-		res.Process()
-		return
+		return nil, errors.New("failed to fetch the access token")
 	}
 
 	userChannel := make(chan UserData)
@@ -56,23 +46,17 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 	user := <-userChannel
 
 	if user.err != nil {
-		log.Printf("Internal server error occurred while fetching the user details 55. Error: %s.", user.err.Error())
-		res := response.New(w, r, "Internal server error occurred while fetching the user details 55.", http.StatusInternalServerError)
-		res.Process()
-		return
+		return nil, errors.New("failed to fetch the user details")
 	}
 
 	saveChannel := make(chan error)
 	go saveUser(user.Data, saveChannel)
 
 	if err := <-saveChannel; err != nil {
-		log.Printf("Internal server error occurred while fetching the user details 66. Error: %s.", err.Error())
-		res := response.New(w, r, "Internal server error occurred while fetching the user details 66.", http.StatusInternalServerError)
-		res.Process()
-		return
+		return nil, errors.New("failed to store the user")
 	}
 
-	claims := jwt.MapClaims{
+	/*claims := jwt.MapClaims{
 		"cid": user.Data.CID,
 	}
 
@@ -104,7 +88,9 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 		res := response.New(w, r, "Internal server error occurred while fetching the user details 102.", http.StatusInternalServerError)
 		res.Process()
 		return
-	}
+	}*/
+
+	return &user, nil
 }
 
 func getToken(code string, tokenChannel chan Token) {

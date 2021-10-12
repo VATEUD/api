@@ -68,7 +68,7 @@ func (server *Server) loadRoutes() {
 			true,
 			false,
 		},
-		{
+		/*{
 			"/auth/validate",
 			[]string{
 				"GET",
@@ -77,7 +77,7 @@ func (server *Server) loadRoutes() {
 			false,
 			true,
 			false,
-		},
+		},*/
 		{
 			"/api/user",
 			[]string{
@@ -254,6 +254,16 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			oauth2.Authorize,
+			false,
+			true,
+			false,
+		},
+		{
+			"/oauth/callback",
+			[]string{
+				"GET",
+			},
+			oauth2.Callback,
 			false,
 			true,
 			false,

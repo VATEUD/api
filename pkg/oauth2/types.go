@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const cookieName = "token"
+
 var scopes = []string{"full_name", "email", "vatsim_details", "country"}
 
 type authorizationRequest struct {

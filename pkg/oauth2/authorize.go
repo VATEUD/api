@@ -45,6 +45,7 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 		Client:    *client,
 		Scopes:    req.Scopes,
 		UserAgent: r.UserAgent(),
+		State:     req.State,
 	}
 
 	if err := database.DB.Create(&login).Error; err != nil {
@@ -55,14 +56,14 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookie := http.Cookie{
-		Name:       "token",
-		Value:      id,
-		Path:       "/oauth",
-		Domain:     r.URL.Host,
-		Expires:    time.Now().UTC().Add(time.Minute*5),
-		Secure:     true,
-		HttpOnly:   true,
-		SameSite:   1,
+		Name:     cookieName,
+		Value:    id,
+		Path:     "/oauth",
+		Domain:   r.URL.Host,
+		Expires:  time.Now().UTC().Add(time.Minute * 5),
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: 1,
 	}
 
 	http.SetCookie(w, &cookie)
