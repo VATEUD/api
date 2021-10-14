@@ -2,6 +2,9 @@ package oauth2
 
 import (
 	"api/pkg/response"
+	"api/utils"
+	"encoding/json"
+	"github.com/golang-jwt/jwt/v4"
 	"log"
 	"net/http"
 )
@@ -38,4 +41,33 @@ func Token(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	claims := jwt.MapClaims{
+		"": "",
+	}
+	token, err := utils.GenerateNewJWT(claims)
+
+	if err != nil {
+		log.Println("Error occurred while generating the JWT token. Error:", err.Error())
+		res := response.New(w, r, "Internal server error occurred.", http.StatusInternalServerError)
+		res.Process()
+		return
+	}
+
+	data := map[string]interface{}{
+		"access_token": token,
+		"expires_in":   60 * 60 * 24 * 7,
+	}
+
+	bytes, err := json.Marshal(data)
+
+	if err != nil {
+		log.Println("Error occurred while marshalling the json response. Error:", err.Error())
+		res := response.New(w, r, "Internal server error occurred.", http.StatusInternalServerError)
+		res.Process()
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(bytes)
 }
