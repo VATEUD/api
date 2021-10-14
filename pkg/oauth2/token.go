@@ -16,5 +16,23 @@ func Token(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(req)
+	_, aErr := req.Validate()
+
+	if aErr != nil {
+		log.Println("Validation failed. Error:", aErr.internalError.Error())
+		data, err := aErr.Json()
+
+		if err != nil {
+			log.Println("Error occurred while marshalling the json response. Error:", err.Error())
+			res := response.New(w, r, "Internal server error occurred.", http.StatusInternalServerError)
+			res.Process()
+			return
+		}
+
+		w.WriteHeader(aErr.Code)
+		if _, err := w.Write(data); err != nil {
+			log.Println("failed to write")
+			return
+		}
+	}
 }
