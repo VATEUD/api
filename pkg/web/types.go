@@ -3,15 +3,18 @@ package web
 import (
 	"api/pkg/api/division"
 	"api/pkg/api/news"
+	"api/pkg/api/solo_phases"
 	"api/pkg/api/subdivision"
 	"api/pkg/api/uploads"
 	"api/pkg/oauth2"
 	"api/pkg/response"
 	"api/pkg/vatsim/connect"
 	"api/pkg/vatsim/myvatsim"
+	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type Server struct {
@@ -22,17 +25,22 @@ type Server struct {
 }
 
 type Handler struct {
-	Path       string
-	Methods    []string
-	Function   http.HandlerFunc
-	AuthNeeded bool
-	GuestOnly  bool
-	AllowCors  bool
+	Path     string
+	Methods  []string
+	Function http.HandlerFunc
+	Permission
 }
 
 type Middleware struct {
 	Name     string
 	Function mux.MiddlewareFunc
+}
+
+type Permission struct {
+	AuthNeeded       bool
+	GuestOnly        bool
+	AllowCors        bool
+	SubdivisionToken bool
 }
 
 func (server *Server) Start() error {
@@ -64,9 +72,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			connect.Login,
-			false,
-			true,
-			false,
+			Permission{
+				false,
+				true,
+				false,
+				false,
+			},
 		},
 		{
 			"/auth/validate",
@@ -74,9 +85,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			connect.Validate,
-			false,
-			true,
-			false,
+			Permission{
+				false,
+				true,
+				false,
+				false,
+			},
 		},
 		{
 			"/api/user",
@@ -84,9 +98,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			oauth2.User,
-			true,
-			false,
-			true,
+			Permission{
+				true,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/division/examiners",
@@ -94,9 +111,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			division.Examiners,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/division/instructors",
@@ -104,9 +124,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			division.Instructors,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/news",
@@ -114,9 +137,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			news.NewsIndex,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/news/{id}",
@@ -124,9 +150,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			news.NewsShow,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/subdivisions",
@@ -134,9 +163,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			subdivision.Subdivisions,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/subdivisions/view",
@@ -144,9 +176,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			subdivision.Subdivisions,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/subdivisions/view/{subdivision}",
@@ -154,9 +189,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			subdivision.Subdivision,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/subdivisions/instructors",
@@ -164,9 +202,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			subdivision.Instructors,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/subdivisions/instructors/{subdivision}",
@@ -174,9 +215,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			subdivision.InstructorsFilter,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/staff",
@@ -184,9 +228,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			division.Staff,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/events/view",
@@ -194,9 +241,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			myvatsim.AllEvents,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/events/view/{amount}",
@@ -204,9 +254,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			myvatsim.EventsByAmount,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/events/filter/days/{days}",
@@ -214,9 +267,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			myvatsim.EventsFilterDays,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/uploads/view",
@@ -224,9 +280,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			uploads.List,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/uploads/download/{id}",
@@ -234,9 +293,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			uploads.Download,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/uploads/filter/{type}",
@@ -244,9 +306,90 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			uploads.Filter,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
+		},
+		{
+			"/api/solo_phases",
+			[]string{
+				"GET",
+			},
+			solo_phases.RetrieveAll,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
+		},
+		{
+			"/api/solo_phases/view",
+			[]string{
+				"GET",
+			},
+			solo_phases.RetrieveAll,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
+		},
+		{
+			"/api/solo_phases/view/{subdivision}",
+			[]string{
+				"GET",
+			},
+			solo_phases.RetrieveBySubdivision,
+			Permission{
+				false,
+				false,
+				true,
+				false,
+			},
+		},
+		{
+			"/api/solo_phases/create",
+			[]string{
+				"POST",
+			},
+			solo_phases.Create,
+			Permission{
+				true,
+				false,
+				false,
+				true,
+			},
+		},
+		{
+			"/api/solo_phases/delete/{id}",
+			[]string{
+				"DELETE",
+			},
+			solo_phases.Delete,
+			Permission{
+				true,
+				false,
+				false,
+				true,
+			},
+		},
+		{
+			"/api/solo_phases/extend/{id}",
+			[]string{
+				"PUT",
+			},
+			solo_phases.Extend,
+			Permission{
+				true,
+				false,
+				false,
+				true,
+			},
 		},
 	}
 }
@@ -274,6 +417,8 @@ func (server *Server) loadMiddlewares() {
 
 func (server Server) NeedsAuth(uri string) bool {
 	for _, route := range server.handlers {
+		uri = server.checkURI(route, uri)
+
 		if route.Path == uri {
 			if route.AuthNeeded {
 				return true
@@ -287,6 +432,8 @@ func (server Server) NeedsAuth(uri string) bool {
 
 func (server Server) GuestOnly(uri string) bool {
 	for _, route := range server.handlers {
+		uri = server.checkURI(route, uri)
+
 		if route.Path == uri {
 			if route.GuestOnly {
 				return true
@@ -300,6 +447,8 @@ func (server Server) GuestOnly(uri string) bool {
 
 func (server Server) AllowCors(uri string) bool {
 	for _, route := range server.handlers {
+		uri = server.checkURI(route, uri)
+
 		if route.Path == uri {
 			if route.AllowCors {
 				return true
@@ -309,4 +458,60 @@ func (server Server) AllowCors(uri string) bool {
 	}
 
 	return false
+}
+
+func (server Server) NeedsSubdivisionToken(uri string) bool {
+	for _, route := range server.handlers {
+		uri = server.checkURI(route, uri)
+
+		if route.Path == uri {
+			if route.SubdivisionToken {
+				return true
+			}
+			break
+		}
+	}
+
+	return false
+}
+
+func (server Server) indexOfBracket(uri []string) []int {
+	var indexes []int
+
+	for i, data := range uri {
+		if strings.Contains(data, "{") {
+			indexes = append(indexes, i)
+		}
+	}
+
+	return indexes
+}
+
+func (server Server) compileURI(parts []string) string {
+	var uri string
+
+	for _, part := range parts[1:] {
+		uri += fmt.Sprintf("/%s", part)
+	}
+
+	return uri
+}
+
+func (server Server) checkURI(route Handler, uri string) string {
+	if strings.Contains(route.Path, "{") {
+		if strings.Contains(uri, route.Path[:strings.Index(route.Path, "{")]) {
+			parts := strings.Split(uri, "/")
+			pathParts := strings.Split(route.Path, "/")
+
+			indexes := server.indexOfBracket(pathParts)
+
+			for _, i := range indexes {
+				parts[i] = pathParts[i]
+			}
+
+			return server.compileURI(parts)
+		}
+	}
+
+	return uri
 }
