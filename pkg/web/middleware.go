@@ -65,7 +65,7 @@ func authMiddleware(next http.Handler) http.Handler {
 
 			if err := database.DB.Where("token = ?", token).First(&subToken).Error; err != nil {
 				log.Println("Token not found.")
-				res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
+				res := response.New(w, r, "Invalid token provided.", http.StatusUnauthorized)
 				res.Process()
 				return
 			}

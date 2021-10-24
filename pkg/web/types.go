@@ -340,16 +340,16 @@ func (server *Server) loadRoutes() {
 			},
 		},
 		{
-			"/api/solo_phases/view/{subdivision}/{test}",
+			"/api/solo_phases/view/{subdivision}",
 			[]string{
 				"GET",
 			},
 			solo_phases.RetrieveBySubdivision,
 			Permission{
-				true,
+				false,
 				false,
 				true,
-				true,
+				false,
 			},
 		},
 	}
