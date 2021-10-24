@@ -119,7 +119,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	saveChannel := make(chan soloPhaseSaveResult)
 	go req.save(saveChannel, token.Subdivision)
 
-	solo := <- saveChannel
+	solo := <-saveChannel
 
 	b, err := json.Marshal(solo.soloPhase)
 
@@ -134,4 +134,31 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write(b); err != nil {
 		log.Println("error writing the response")
 	}
+}
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	token := r.Context().Value("token").(models.SubdivisionToken)
+
+	var solo models.SoloPhase
+
+	if err := database.DB.Where("id = ? AND subdivision_id = ? AND expired = ?", params["id"], token.SubdivisionID, false).First(&solo).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Println("Solo phase not found. ID:", params["id"])
+			res := response.New(w, r, "Solo phase not found.", http.StatusNotFound)
+			res.Process()
+			return
+		}
+
+		log.Println("Error occurred while fetching the solo phase. Error:", err.Error())
+		res := response.New(w, r, "Internal server error occurred while deleting the solo phase.", http.StatusInternalServerError)
+		res.Process()
+		return
+	}
+
+	go database.DB.Delete(&solo)
+
+	res := response.New(w, r, "Solo phase deleted", http.StatusOK)
+	res.Process()
 }

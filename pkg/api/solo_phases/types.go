@@ -13,7 +13,7 @@ import (
 const dateFormat = "2006-01-02 15:04:05"
 
 var (
-	userIDNotProvided = errors.New("user ID not provided")
+	userIDNotProvided     = errors.New("user ID not provided")
 	validUntilNotProvided = errors.New("expiry date not provided")
 )
 
@@ -26,7 +26,7 @@ type soloPhaseRequest struct {
 
 type soloPhaseSaveResult struct {
 	soloPhase models.SoloPhase
-	err error
+	err       error
 }
 
 type validator interface {

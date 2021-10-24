@@ -365,6 +365,19 @@ func (server *Server) loadRoutes() {
 				true,
 			},
 		},
+		{
+			"/api/solo_phases/delete/{id}",
+			[]string{
+				"DELETE",
+			},
+			solo_phases.Delete,
+			Permission{
+				true,
+				false,
+				false,
+				true,
+			},
+		},
 	}
 }
 
