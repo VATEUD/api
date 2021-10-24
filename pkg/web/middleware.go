@@ -63,7 +63,7 @@ func authMiddleware(next http.Handler) http.Handler {
 
 			var subToken models.SubdivisionToken
 
-			if err := database.DB.Where("token = ?", token).First(&subToken).Error; err != nil {
+			if err := database.DB.Where("token = ?", token).Preload("Subdivision").First(&subToken).Error; err != nil {
 				log.Println("Token not found.")
 				res := response.New(w, r, "Invalid token provided.", http.StatusUnauthorized)
 				res.Process()

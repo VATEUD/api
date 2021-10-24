@@ -352,6 +352,19 @@ func (server *Server) loadRoutes() {
 				false,
 			},
 		},
+		{
+			"/api/solo_phases/create",
+			[]string{
+				"POST",
+			},
+			solo_phases.Create,
+			Permission{
+				true,
+				false,
+				false,
+				true,
+			},
+		},
 	}
 }
 
