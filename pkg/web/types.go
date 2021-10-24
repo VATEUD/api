@@ -23,17 +23,21 @@ type Server struct {
 }
 
 type Handler struct {
-	Path       string
-	Methods    []string
-	Function   http.HandlerFunc
-	AuthNeeded bool
-	GuestOnly  bool
-	AllowCors  bool
+	Path     string
+	Methods  []string
+	Function http.HandlerFunc
+	Permission
 }
 
 type Middleware struct {
 	Name     string
 	Function mux.MiddlewareFunc
+}
+
+type Permission struct {
+	AuthNeeded bool
+	GuestOnly  bool
+	AllowCors  bool
 }
 
 func (server *Server) Start() error {
@@ -65,9 +69,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			connect.Login,
-			false,
-			true,
-			false,
+			Permission{
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/auth/validate",
@@ -75,9 +81,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			connect.Validate,
-			false,
-			true,
-			false,
+			Permission{
+				false,
+				true,
+				false,
+			},
 		},
 		{
 			"/api/user",
@@ -85,9 +93,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			oauth2.User,
-			true,
-			false,
-			true,
+			Permission{
+				true,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/division/examiners",
@@ -95,9 +105,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			division.Examiners,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/division/instructors",
@@ -105,9 +117,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			division.Instructors,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/news",
@@ -115,9 +129,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			news.NewsIndex,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/news/{id}",
@@ -125,9 +141,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			news.NewsShow,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/subdivisions",
@@ -135,9 +153,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			subdivision.Subdivisions,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/subdivisions/view",
@@ -145,9 +165,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			subdivision.Subdivisions,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/subdivisions/view/{subdivision}",
@@ -155,9 +177,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			subdivision.Subdivision,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/subdivisions/instructors",
@@ -165,9 +189,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			subdivision.Instructors,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/subdivisions/instructors/{subdivision}",
@@ -175,9 +201,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			subdivision.InstructorsFilter,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/staff",
@@ -185,9 +213,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			division.Staff,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/events/view",
@@ -195,9 +225,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			myvatsim.AllEvents,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/events/view/{amount}",
@@ -205,9 +237,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			myvatsim.EventsByAmount,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/events/filter/days/{days}",
@@ -215,9 +249,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			myvatsim.EventsFilterDays,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/uploads/view",
@@ -225,9 +261,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			uploads.List,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/uploads/download/{id}",
@@ -235,9 +273,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			uploads.Download,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/uploads/filter/{type}",
@@ -245,9 +285,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			uploads.Filter,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/solo_phases",
@@ -255,9 +297,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			solo_phases.RetrieveAll,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/solo_phases/view",
@@ -265,9 +309,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			solo_phases.RetrieveAll,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 		{
 			"/api/solo_phases/view/{subdivision}",
@@ -275,9 +321,11 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			solo_phases.RetrieveBySubdivision,
-			false,
-			false,
-			true,
+			Permission{
+				false,
+				false,
+				true,
+			},
 		},
 	}
 }

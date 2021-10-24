@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-const BASE_RATE_LIMIT = 60
+const BaseRateLimit = 60
 
 var limiter = rate.NewLimiter(rate.Every(time.Minute), rateLimit())
 
@@ -120,5 +120,5 @@ func rateLimit() int {
 		}
 	}
 
-	return BASE_RATE_LIMIT
+	return BaseRateLimit
 }
