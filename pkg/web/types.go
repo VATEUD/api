@@ -10,9 +10,11 @@ import (
 	"api/pkg/response"
 	"api/pkg/vatsim/connect"
 	"api/pkg/vatsim/myvatsim"
+	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type Server struct {
@@ -35,9 +37,10 @@ type Middleware struct {
 }
 
 type Permission struct {
-	AuthNeeded bool
-	GuestOnly  bool
-	AllowCors  bool
+	AuthNeeded       bool
+	GuestOnly        bool
+	AllowCors        bool
+	SubdivisionToken bool
 }
 
 func (server *Server) Start() error {
@@ -73,6 +76,7 @@ func (server *Server) loadRoutes() {
 				false,
 				true,
 				false,
+				false,
 			},
 		},
 		{
@@ -84,6 +88,7 @@ func (server *Server) loadRoutes() {
 			Permission{
 				false,
 				true,
+				false,
 				false,
 			},
 		},
@@ -97,6 +102,7 @@ func (server *Server) loadRoutes() {
 				true,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -109,6 +115,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -121,6 +128,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -133,6 +141,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -145,6 +154,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -157,6 +167,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -169,6 +180,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -181,6 +193,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -193,6 +206,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -205,6 +219,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -217,6 +232,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -229,6 +245,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -241,6 +258,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -253,6 +271,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -265,6 +284,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -277,6 +297,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -289,6 +310,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -301,6 +323,7 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
@@ -313,17 +336,19 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+				false,
 			},
 		},
 		{
-			"/api/solo_phases/view/{subdivision}",
+			"/api/solo_phases/view/{subdivision}/{test}",
 			[]string{
 				"GET",
 			},
 			solo_phases.RetrieveBySubdivision,
 			Permission{
+				true,
 				false,
-				false,
+				true,
 				true,
 			},
 		},
@@ -353,6 +378,8 @@ func (server *Server) loadMiddlewares() {
 
 func (server Server) NeedsAuth(uri string) bool {
 	for _, route := range server.handlers {
+		uri = server.checkURI(route, uri)
+
 		if route.Path == uri {
 			if route.AuthNeeded {
 				return true
@@ -366,6 +393,8 @@ func (server Server) NeedsAuth(uri string) bool {
 
 func (server Server) GuestOnly(uri string) bool {
 	for _, route := range server.handlers {
+		uri = server.checkURI(route, uri)
+
 		if route.Path == uri {
 			if route.GuestOnly {
 				return true
@@ -379,6 +408,8 @@ func (server Server) GuestOnly(uri string) bool {
 
 func (server Server) AllowCors(uri string) bool {
 	for _, route := range server.handlers {
+		uri = server.checkURI(route, uri)
+
 		if route.Path == uri {
 			if route.AllowCors {
 				return true
@@ -388,4 +419,60 @@ func (server Server) AllowCors(uri string) bool {
 	}
 
 	return false
+}
+
+func (server Server) NeedsSubdivisionToken(uri string) bool {
+	for _, route := range server.handlers {
+		uri = server.checkURI(route, uri)
+
+		if route.Path == uri {
+			if route.SubdivisionToken {
+				return true
+			}
+			break
+		}
+	}
+
+	return false
+}
+
+func (server Server) indexOfBracket(uri []string) []int {
+	var indexes []int
+
+	for i, data := range uri {
+		if strings.Contains(data, "{") {
+			indexes = append(indexes, i)
+		}
+	}
+
+	return indexes
+}
+
+func (server Server) compileURI(parts []string) string {
+	var uri string
+
+	for _, part := range parts[1:] {
+		uri += fmt.Sprintf("/%s", part)
+	}
+
+	return uri
+}
+
+func (server Server) checkURI(route Handler, uri string) string {
+	if strings.Contains(route.Path, "{") {
+		if strings.Contains(uri, route.Path[:strings.Index(route.Path, "{")]) {
+			parts := strings.Split(uri, "/")
+			pathParts := strings.Split(route.Path, "/")
+
+			indexes := server.indexOfBracket(pathParts)
+
+			for _, i := range indexes {
+				parts[i] = pathParts[i]
+			}
+
+			return server.compileURI(parts)
+		}
+	}
+
+	return uri
 }

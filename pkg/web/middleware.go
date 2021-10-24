@@ -1,9 +1,12 @@
 package web
 
 import (
+	"api/internal/pkg/database"
 	"api/pkg/jwt"
+	"api/pkg/models"
 	"api/pkg/response"
 	"api/utils"
+	"context"
 	"fmt"
 	"golang.org/x/time/rate"
 	"log"
@@ -46,6 +49,30 @@ func authMiddleware(next http.Handler) http.Handler {
 			res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
 			res.Process()
 			return
+		}
+
+		if server.NeedsSubdivisionToken(uri) {
+			token := strings.TrimPrefix(authHeader, "Token ")
+
+			if len(token) < 1 {
+				log.Println("Authentication header not provided.")
+				res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
+				res.Process()
+				return
+			}
+
+			var subToken models.SubdivisionToken
+
+			if err := database.DB.Where("token = ?", token).First(&subToken).Error; err != nil {
+				log.Println("Authentication header not provided.")
+				res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
+				res.Process()
+				return
+			}
+
+			ctx := context.WithValue(r.Context(), "token", subToken)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 
 		auth := strings.TrimPrefix(authHeader, "Bearer ")
