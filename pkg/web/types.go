@@ -378,6 +378,19 @@ func (server *Server) loadRoutes() {
 				true,
 			},
 		},
+		{
+			"/api/solo_phases/extend/{id}",
+			[]string{
+				"PUT",
+			},
+			solo_phases.Extend,
+			Permission{
+				true,
+				false,
+				false,
+				true,
+			},
+		},
 	}
 }
 

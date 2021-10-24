@@ -130,7 +130,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	if _, err := w.Write(b); err != nil {
 		log.Println("error writing the response")
 	}
@@ -157,8 +157,72 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go database.DB.Delete(&solo)
+	go func() {
+		solo.Expired = true
+		database.DB.Updates(&solo)
+	}()
 
 	res := response.New(w, r, "Solo phase deleted", http.StatusOK)
+	res.Process()
+}
+
+func Extend(w http.ResponseWriter, r *http.Request) {
+
+	req, err := newExtendSoloPhaseRequest(r)
+
+	if err != nil {
+		if errors.Is(err, amountNotProvided) {
+			log.Println(err.Error())
+			res := response.New(w, r, "Amount was not provided", http.StatusInternalServerError)
+			res.Process()
+			return
+		}
+
+		log.Println("Failed to create extend solo request. Error:", err.Error())
+		res := response.New(w, r, "Internal server error occurred while extending the solo phase.", http.StatusInternalServerError)
+		res.Process()
+		return
+	}
+
+	if err := validate(req); err != nil {
+		log.Println("Validation failed. Error:", err.Error())
+		res := response.New(w, r, fmt.Sprintf("Validation failed. Error: %s.", err.Error()), http.StatusBadRequest)
+		res.Process()
+		return
+	}
+
+	params := mux.Vars(r)
+
+	token := r.Context().Value("token").(models.SubdivisionToken)
+
+	var solo models.SoloPhase
+
+	if err := database.DB.Where("id = ? AND subdivision_id = ? AND expired = ?", params["id"], token.SubdivisionID, false).First(&solo).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Println("Solo phase not found. ID:", params["id"])
+			res := response.New(w, r, "Solo phase not found.", http.StatusNotFound)
+			res.Process()
+			return
+		}
+
+		log.Println("Error occurred while fetching the solo phase. Error:", err.Error())
+		res := response.New(w, r, "Internal server error occurred while deleting the solo phase.", http.StatusInternalServerError)
+		res.Process()
+		return
+	}
+
+	saveChannel := make(chan soloPhaseSaveResult)
+	go req.save(saveChannel, solo)
+
+	save := <-saveChannel
+
+	if save.err != nil {
+		log.Println("Error occurred while saving the solo phase. Error:", save.err.Error())
+		res := response.New(w, r, "Internal server error occurred while extending the solo phase.", http.StatusInternalServerError)
+		res.Process()
+		return
+	}
+
+	res := response.New(w, r, "Solo phase extended.", http.StatusOK)
 	res.Process()
 }
