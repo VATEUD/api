@@ -43,7 +43,7 @@ DROP TABLE IF EXISTS `atc_solo_phases`;
 CREATE TABLE `atc_solo_phases` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
-  `position` varchar(10) NOT NULL,
+  `position` varchar(12) NOT NULL,
   `valid_until` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `extensions` tinyint(4) DEFAULT 0,
   `expired` tinyint(1) DEFAULT 0,

@@ -3,6 +3,7 @@ package web
 import (
 	"api/pkg/api/division"
 	"api/pkg/api/news"
+	"api/pkg/api/solo_phases"
 	"api/pkg/api/subdivision"
 	"api/pkg/api/uploads"
 	"api/pkg/oauth2"
@@ -244,6 +245,36 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			uploads.Filter,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/solo_phases",
+			[]string{
+				"GET",
+			},
+			solo_phases.RetrieveAll,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/solo_phases/view",
+			[]string{
+				"GET",
+			},
+			solo_phases.RetrieveAll,
+			false,
+			false,
+			true,
+		},
+		{
+			"/api/solo_phases/view/{subdivision}",
+			[]string{
+				"GET",
+			},
+			solo_phases.RetrieveBySubdivision,
 			false,
 			false,
 			true,
