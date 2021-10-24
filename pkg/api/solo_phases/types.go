@@ -97,7 +97,7 @@ func (req soloPhaseRequest) validate() error {
 	}
 
 	if !req.ValidUntil.After(time.Now().UTC()) {
-		return errors.New("invalid valid date provided")
+		return errors.New("invalid expiry date provided")
 	}
 
 	return nil
