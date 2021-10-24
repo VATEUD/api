@@ -22,8 +22,8 @@ func (units units) String() string {
 var (
 	userIDNotProvided     = errors.New("user ID not provided")
 	validUntilNotProvided = errors.New("expiry date not provided")
-	amountNotProvided = errors.New("amount was not provided")
-	validUnits = units{"m", "d"}
+	amountNotProvided     = errors.New("amount was not provided")
+	validUnits            = units{"m", "d"}
 )
 
 type soloPhaseRequest struct {
@@ -39,7 +39,7 @@ type soloPhaseSaveResult struct {
 }
 
 type extendSoloPhaseRequest struct {
-	Unit string
+	Unit   string
 	Amount int
 }
 
@@ -144,7 +144,7 @@ func newExtendSoloPhaseRequest(r *http.Request) (*extendSoloPhaseRequest, error)
 	}
 
 	return &extendSoloPhaseRequest{
-		Unit:     strings.ToLower(r.PostForm.Get("unit")),
+		Unit:   strings.ToLower(r.PostForm.Get("unit")),
 		Amount: amount,
 	}, nil
 }
@@ -176,16 +176,16 @@ func (req extendSoloPhaseRequest) save(channel chan soloPhaseSaveResult, solo mo
 	solo.Extensions += 1
 
 	if err := database.DB.Updates(&solo).Error; err != nil {
-		channel <-soloPhaseSaveResult{err: err}
+		channel <- soloPhaseSaveResult{err: err}
 	}
 
-	channel <-soloPhaseSaveResult{}
+	channel <- soloPhaseSaveResult{}
 }
 
 func (req extendSoloPhaseRequest) time() time.Duration {
 	if req.Unit == "m" {
-		return time.Hour*24*30*time.Duration(req.Amount)
+		return time.Hour * 24 * 30 * time.Duration(req.Amount)
 	}
 
-	return time.Hour*24*time.Duration(req.Amount)
+	return time.Hour * 24 * time.Duration(req.Amount)
 }
