@@ -121,6 +121,13 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	solo := <-saveChannel
 
+	if solo.err != nil {
+		log.Println("Error occurred while creating the solo phase. Error:", solo.err.Error())
+		res := response.New(w, r, "Internal server error occurred while creating the solo phase", http.StatusInternalServerError)
+		res.Process()
+		return
+	}
+
 	b, err := json.Marshal(solo.soloPhase)
 
 	if err != nil {
