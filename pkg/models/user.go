@@ -8,7 +8,7 @@ type User struct {
 	ID              uint      `json:"id" gorm:"primaryKey;type:bigint(20);unsigned;column:id"`
 	NameFirst       string    `json:"name_first" gorm:"type:varchar(255);column:name_first"`
 	NameLast        string    `json:"name_last" gorm:"type:varchar(255);column:name_last"`
-	Email           string    `json:"-" gorm:"type:varchar(255);column:email"`
+	Email           string    `json:"email" gorm:"type:varchar(255);column:email"`
 	Rating          int       `json:"rating" gorm:"type:tinyint(4);column:rating"`
 	PilotRating     int       `json:"pilot_rating" gorm:"type:tinyint(4);column:pilot_rating"`
 	CountryID       string    `json:"country_id" gorm:"type:varchar(255);column:country_id"`
