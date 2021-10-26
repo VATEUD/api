@@ -1,6 +1,6 @@
 [Unit]
 Description=EUD API
-ConditionPathExists=/go/src/api
+ConditionPathExists=/path/to/the/api
 After=network.target
 
 [Service]
