@@ -84,7 +84,13 @@ func (server *Server) loadRoutes() {
 			[]string{
 				"GET",
 			},
-			connect.Validate,
+			oauth2.User,
+			Permission{
+				AuthNeeded:       false,
+				GuestOnly:        false,
+				AllowCors:        false,
+				SubdivisionToken: false,
+			},
 		},
 		{
 			"/api/user",
@@ -92,6 +98,7 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			oauth2.User,
+			Permission{
 				true,
 				false,
 				true,
@@ -390,9 +397,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			oauth2.Authorize,
-			false,
-			true,
-			false,
+			Permission{
+				false,
+				true,
+				false,
+				false,
+			},
 		},
 		{
 			"/oauth/callback",
@@ -400,9 +410,12 @@ func (server *Server) loadRoutes() {
 				"GET",
 			},
 			oauth2.Callback,
-			false,
-			true,
-			false,
+			Permission{
+				false,
+				true,
+				false,
+				false,
+			},
 		},
 		{
 			"/oauth/token",
@@ -410,9 +423,12 @@ func (server *Server) loadRoutes() {
 				"POST",
 			},
 			oauth2.Token,
-			false,
-			true,
-			false,
+			Permission{
+				false,
+				true,
+				false,
+				false,
+			},
 		},
 	}
 }
