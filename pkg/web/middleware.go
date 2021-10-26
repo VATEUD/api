@@ -1,9 +1,12 @@
 package web
 
 import (
+	"api/internal/pkg/database"
 	"api/pkg/jwt"
+	"api/pkg/models"
 	"api/pkg/response"
 	"api/utils"
+	"context"
 	"fmt"
 	"golang.org/x/time/rate"
 	"log"
@@ -14,7 +17,7 @@ import (
 	"time"
 )
 
-const BASE_RATE_LIMIT = 60
+const BaseRateLimit = 60
 
 var limiter = rate.NewLimiter(rate.Every(time.Minute), rateLimit())
 
@@ -45,6 +48,31 @@ func authMiddleware(next http.Handler) http.Handler {
 			log.Println("Authentication header not provided.")
 			res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
 			res.Process()
+			return
+		}
+
+		if server.NeedsSubdivisionToken(uri) {
+			token := strings.TrimPrefix(authHeader, "Token ")
+
+			if len(token) < 1 {
+				log.Println("Authentication header not provided.")
+				res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
+				res.Process()
+				return
+			}
+
+			var subToken models.SubdivisionToken
+
+			if err := database.DB.Where("token = ?", token).Preload("Subdivision").First(&subToken).Error; err != nil {
+				log.Println("Token not found.")
+				res := response.New(w, r, "Invalid token provided.", http.StatusUnauthorized)
+				res.Process()
+				return
+			}
+
+			ctx := context.WithValue(r.Context(), "token", subToken)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 
@@ -120,5 +148,5 @@ func rateLimit() int {
 		}
 	}
 
-	return BASE_RATE_LIMIT
+	return BaseRateLimit
 }

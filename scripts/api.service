@@ -1,0 +1,13 @@
+[Unit]
+Description=EUD API
+ConditionPathExists=/path/to/the/api
+After=network.target
+
+[Service]
+User=user
+Group=group
+WorkingDirectory=/path/to/the/api
+ExecStart=/path/to/the/api/main
+
+[Install]
+WantedBy=multi-user.target
