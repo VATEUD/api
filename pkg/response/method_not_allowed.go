@@ -1,12 +1,12 @@
 package response
 
 import (
-	"log"
+	"api/internal/pkg/logger"
 	"net/http"
 )
 
 func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Page %s could got request with unsupported method - %s.\n", r.URL.String(), r.Method)
+	logger.Log.Printf("Page %s could got request with unsupported method - %s.\n", r.URL.String(), r.Method)
 	res := New(w, r, "Method not allowed.", http.StatusMethodNotAllowed)
 	res.Process()
 }

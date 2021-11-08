@@ -2,6 +2,7 @@ package connect
 
 import (
 	"api/internal/pkg/database"
+	"api/internal/pkg/logger"
 	"api/pkg/models"
 	"api/pkg/response"
 	"api/utils"
@@ -45,7 +46,7 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 	token := <-tokenChannel
 
 	if token.err != nil {
-		log.Printf("Internal server error occurred while fetching the user details 44. Error: %s.", token.err.Error())
+		logger.Log.Errorf("Internal server error occurred while fetching the user details 44. Error: %s.", token.err.Error())
 		res := response.New(w, r, "Internal server error occurred while fetching the user details 44.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -56,7 +57,7 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 	user := <-userChannel
 
 	if user.err != nil {
-		log.Printf("Internal server error occurred while fetching the user details 55. Error: %s.", user.err.Error())
+		logger.Log.Errorf("Internal server error occurred while fetching the user details 55. Error: %s.", user.err.Error())
 		res := response.New(w, r, "Internal server error occurred while fetching the user details 55.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -66,7 +67,7 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 	go saveUser(user.Data, saveChannel)
 
 	if err := <-saveChannel; err != nil {
-		log.Printf("Internal server error occurred while fetching the user details 66. Error: %s.", err.Error())
+		logger.Log.Errorf("Internal server error occurred while fetching the user details 66. Error: %s.", err.Error())
 		res := response.New(w, r, "Internal server error occurred while fetching the user details 66.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -79,7 +80,7 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 	jwtToken, err := utils.GenerateNewJWT(claims)
 
 	if err != nil {
-		log.Printf("Internal server error occurred while fetching the user details 79. Error: %s.", err.Error())
+		logger.Log.Errorf("Internal server error occurred while fetching the user details 79. Error: %s.", err.Error())
 		res := response.New(w, r, "Internal server error occurred while fetching the user details 79.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -92,7 +93,7 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 	res, err := json.Marshal(data)
 
 	if err != nil {
-		log.Printf("Internal server error occurred while fetching the user details 92. Error: %s.", err.Error())
+		logger.Log.Errorf("Internal server error occurred while fetching the user details 92. Error: %s.", err.Error())
 		res := response.New(w, r, "Internal server error occurred while fetching the user details 92.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -100,7 +101,7 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(res); err != nil {
-		log.Printf("Internal server error occurred while fetching the user details 102. Error: %s.", err.Error())
+		logger.Log.Errorf("Internal server error occurred while fetching the user details 102. Error: %s.", err.Error())
 		res := response.New(w, r, "Internal server error occurred while fetching the user details 102.", http.StatusInternalServerError)
 		res.Process()
 		return

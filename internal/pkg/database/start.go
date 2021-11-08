@@ -1,9 +1,9 @@
 package database
 
 import (
+	"api/internal/pkg/logger"
 	"api/utils"
 	"fmt"
-	"github.com/labstack/gommon/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -28,12 +28,13 @@ func connect(database string) *gorm.DB {
 
 	if err != nil {
 		if attempt <= maxAttempts {
-			log.Errorf("Error connecting to the database. Error: %s.", err.Error())
+			logger.Log.Printf("Error connecting to the database. Error: %s.", err.Error())
 			attempt += 1
 			Connect()
 			return nil
 		}
 
+		logger.Log.Panicf("Error connecting to the database. Error: %s.", err.Error())
 		panic("Failed to connect to the database. Aborting...")
 	}
 

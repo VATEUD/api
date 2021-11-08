@@ -2,6 +2,7 @@ package web
 
 import (
 	"api/internal/pkg/database"
+	"api/internal/pkg/logger"
 	"api/pkg/jwt"
 	"api/pkg/models"
 	"api/pkg/response"
@@ -9,7 +10,6 @@ import (
 	"context"
 	"fmt"
 	"golang.org/x/time/rate"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -34,7 +34,7 @@ func authMiddleware(next http.Handler) http.Handler {
 
 		if server.GuestOnly(uri) {
 			if authHeader != "" {
-				log.Println("This route is for guests only.")
+				logger.Log.Println("This route is for guests only.")
 				res := response.New(w, r, "This route is for guests only.", http.StatusUnauthorized)
 				res.Process()
 				return
@@ -45,7 +45,7 @@ func authMiddleware(next http.Handler) http.Handler {
 		}
 
 		if len(authHeader) < 1 {
-			log.Println("Authentication header not provided.")
+			logger.Log.Println("Authentication header not provided.")
 			res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
 			res.Process()
 			return
@@ -55,7 +55,7 @@ func authMiddleware(next http.Handler) http.Handler {
 			token := strings.TrimPrefix(authHeader, "Token ")
 
 			if len(token) < 1 {
-				log.Println("Authentication header not provided.")
+				logger.Log.Println("Authentication header not provided.")
 				res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
 				res.Process()
 				return
@@ -64,7 +64,7 @@ func authMiddleware(next http.Handler) http.Handler {
 			var subToken models.SubdivisionToken
 
 			if err := database.DB.Where("token = ?", token).Preload("Subdivision").First(&subToken).Error; err != nil {
-				log.Println("Token not found.")
+				logger.Log.Println("Token not found.")
 				res := response.New(w, r, "Invalid token provided.", http.StatusUnauthorized)
 				res.Process()
 				return
@@ -79,7 +79,7 @@ func authMiddleware(next http.Handler) http.Handler {
 		auth := strings.TrimPrefix(authHeader, "Bearer ")
 
 		if len(auth) < 1 {
-			log.Println("Authentication header not provided.")
+			logger.Log.Println("Authentication header not provided.")
 			res := response.New(w, r, "Authentication header not provided.", http.StatusUnauthorized)
 			res.Process()
 			return
@@ -88,14 +88,14 @@ func authMiddleware(next http.Handler) http.Handler {
 		token, err := jwt.New(auth)
 
 		if err != nil {
-			log.Println("Invalid token provided.")
+			logger.Log.Println("Invalid token provided.")
 			res := response.New(w, r, "Invalid token provided.", http.StatusUnauthorized)
 			res.Process()
 			return
 		}
 
 		if !token.Valid {
-			log.Println("Invalid token provided.")
+			logger.Log.Println("Invalid token provided.")
 			res := response.New(w, r, "Invalid token provided.", http.StatusUnauthorized)
 			res.Process()
 			return
@@ -104,7 +104,7 @@ func authMiddleware(next http.Handler) http.Handler {
 		cid, ok := token.MapClaims["cid"]
 
 		if !ok {
-			log.Println("Invalid token provided. Token claims could not be parsed.")
+			logger.Log.Println("Invalid token provided. Token claims could not be parsed.")
 			res := response.New(w, r, "Invalid token provided.", http.StatusUnauthorized)
 			res.Process()
 			return
@@ -119,7 +119,7 @@ func authMiddleware(next http.Handler) http.Handler {
 func rateLimitingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !limiter.Allow() {
-			log.Printf("Too many requests from the following IP %s.\n", r.Header.Get("IP"))
+			logger.Log.Printf("Too many requests from the following IP %s.\n", r.Header.Get("IP"))
 			res := response.New(w, r, "Too many requests.", http.StatusTooManyRequests)
 			res.Process()
 			return
