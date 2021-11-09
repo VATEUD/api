@@ -14,7 +14,6 @@ var Log *logrus.Logger
 
 func New() error {
 	Log = logrus.New()
-	Log.SetFormatter(&logrus.JSONFormatter{})
 
 	fHook := filename.NewHook()
 	fHook.Field = "file"
