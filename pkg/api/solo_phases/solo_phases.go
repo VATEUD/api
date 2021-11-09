@@ -2,6 +2,7 @@ package solo_phases
 
 import (
 	"api/internal/pkg/database"
+	"api/internal/pkg/logger"
 	"api/pkg/models"
 	"api/pkg/response"
 	"encoding/json"
@@ -9,7 +10,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
-	"log"
 	"net/http"
 )
 
@@ -17,7 +17,7 @@ func RetrieveAll(w http.ResponseWriter, r *http.Request) {
 	var soloPhases []*models.SoloPhase
 
 	if err := database.DB.Where("expired = ?", false).Preload("Subdivision").Find(&soloPhases).Error; err != nil {
-		log.Println("Error occurred while fetching solo phases from the DB. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while fetching solo phases from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching solo phases.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -26,7 +26,7 @@ func RetrieveAll(w http.ResponseWriter, r *http.Request) {
 	b, err := json.Marshal(soloPhases)
 
 	if err != nil {
-		log.Println("Error occurred while marshalling the solo phases. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while marshalling the solo phases. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching solo phases.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -34,7 +34,7 @@ func RetrieveAll(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(b); err != nil {
-		log.Println("Failed to write the response. Error:", err.Error())
+		logger.Log.Errorln("Failed to write the response. Error:", err.Error())
 	}
 }
 
@@ -45,20 +45,20 @@ func RetrieveBySubdivision(w http.ResponseWriter, r *http.Request) {
 
 	if err := database.DB.Where("code = ?", params["subdivision"]).Or("id = ?", params["subdivision"]).First(&subdivision).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Println("Subdivision not found. Error:", err.Error())
+			logger.Log.Println("Subdivision not found. Error:", err.Error())
 			res := response.New(w, r, "Subdivision you are looking for, couldn't be found.", http.StatusNotFound)
 			res.Process()
 			return
 		}
 
-		log.Println("Error occurred while fetching solo phases from the DB. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while fetching solo phases from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching solo phases.", http.StatusInternalServerError)
 		res.Process()
 		return
 	}
 
 	if err := database.DB.Where("subdivision_id = ?", subdivision.ID).Find(&solos).Error; err != nil {
-		log.Println("Error occurred while fetching solo phases from the DB. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while fetching solo phases from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching solo phases.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -67,7 +67,7 @@ func RetrieveBySubdivision(w http.ResponseWriter, r *http.Request) {
 	b, err := json.Marshal(solos)
 
 	if err != nil {
-		log.Println("Error occurred while marshalling the solo phases. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while marshalling the solo phases. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching solo phases.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -75,7 +75,7 @@ func RetrieveBySubdivision(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(b); err != nil {
-		log.Println("Failed to write the response. Error:", err.Error())
+		logger.Log.Errorln("Failed to write the response. Error:", err.Error())
 	}
 }
 
@@ -84,20 +84,20 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		if errors.Is(err, userIDNotProvided) || errors.Is(err, validUntilNotProvided) {
-			log.Println("Error occurred while creating a new solo phase request. Error:", err.Error())
+			logger.Log.Println("Error occurred while creating a new solo phase request. Error:", err.Error())
 			res := response.New(w, r, fmt.Sprintf("Make sure all necessary fields are provided. %s.", err.Error()), http.StatusInternalServerError)
 			res.Process()
 			return
 		}
 
-		log.Println("Error occurred while creating a new solo phase request. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while creating a new solo phase request. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while creating the solo phase.", http.StatusInternalServerError)
 		res.Process()
 		return
 	}
 
 	if err := validate(req); err != nil {
-		log.Println("Validation failed. Error:", err.Error())
+		logger.Log.Errorln("Validation failed. Error:", err.Error())
 		res := response.New(w, r, fmt.Sprintf("Validation failed. Error: %s.", err.Error()), http.StatusInternalServerError)
 		res.Process()
 		return
@@ -107,7 +107,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	if check.Error == nil {
 		if check.RowsAffected > 0 {
-			log.Println("user already has an active solo phase")
+			logger.Log.Println("user already has an active solo phase")
 			res := response.New(w, r, "Given member already has an active solo phase", http.StatusForbidden)
 			res.Process()
 			return
@@ -122,7 +122,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	solo := <-saveChannel
 
 	if solo.err != nil {
-		log.Println("Error occurred while creating the solo phase. Error:", solo.err.Error())
+		logger.Log.Errorln("Error occurred while creating the solo phase. Error:", solo.err.Error())
 		res := response.New(w, r, "Internal server error occurred while creating the solo phase", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -131,7 +131,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	b, err := json.Marshal(solo.soloPhase)
 
 	if err != nil {
-		log.Println("Error occurred while marshalling the solo phase. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while marshalling the solo phase. Error:", err.Error())
 		res := response.New(w, r, "Internal server error occurred while creating the solo phase", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -139,7 +139,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	if _, err := w.Write(b); err != nil {
-		log.Println("error writing the response")
+		logger.Log.Errorln("error writing the response")
 	}
 }
 
@@ -152,13 +152,13 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 	if err := database.DB.Where("id = ? AND subdivision_id = ? AND expired = ?", params["id"], token.SubdivisionID, false).First(&solo).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Println("Solo phase not found. ID:", params["id"])
+			logger.Log.Println("Solo phase not found. ID:", params["id"])
 			res := response.New(w, r, "Solo phase not found.", http.StatusNotFound)
 			res.Process()
 			return
 		}
 
-		log.Println("Error occurred while fetching the solo phase. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while fetching the solo phase. Error:", err.Error())
 		res := response.New(w, r, "Internal server error occurred while deleting the solo phase.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -179,20 +179,20 @@ func Extend(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		if errors.Is(err, amountNotProvided) {
-			log.Println(err.Error())
-			res := response.New(w, r, "Amount was not provided", http.StatusInternalServerError)
+			logger.Log.Println(err.Error())
+			res := response.New(w, r, "Amount was not provided", http.StatusBadRequest)
 			res.Process()
 			return
 		}
 
-		log.Println("Failed to create extend solo request. Error:", err.Error())
+		logger.Log.Errorln("Failed to create extend solo request. Error:", err.Error())
 		res := response.New(w, r, "Internal server error occurred while extending the solo phase.", http.StatusInternalServerError)
 		res.Process()
 		return
 	}
 
 	if err := validate(req); err != nil {
-		log.Println("Validation failed. Error:", err.Error())
+		logger.Log.Errorln("Validation failed. Error:", err.Error())
 		res := response.New(w, r, fmt.Sprintf("Validation failed. Error: %s.", err.Error()), http.StatusBadRequest)
 		res.Process()
 		return
@@ -206,13 +206,13 @@ func Extend(w http.ResponseWriter, r *http.Request) {
 
 	if err := database.DB.Where("id = ? AND subdivision_id = ? AND expired = ?", params["id"], token.SubdivisionID, false).First(&solo).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Println("Solo phase not found. ID:", params["id"])
+			logger.Log.Println("Solo phase not found. ID:", params["id"])
 			res := response.New(w, r, "Solo phase not found.", http.StatusNotFound)
 			res.Process()
 			return
 		}
 
-		log.Println("Error occurred while fetching the solo phase. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while fetching the solo phase. Error:", err.Error())
 		res := response.New(w, r, "Internal server error occurred while deleting the solo phase.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -224,7 +224,7 @@ func Extend(w http.ResponseWriter, r *http.Request) {
 	save := <-saveChannel
 
 	if save.err != nil {
-		log.Println("Error occurred while saving the solo phase. Error:", save.err.Error())
+		logger.Log.Errorln("Error occurred while saving the solo phase. Error:", save.err.Error())
 		res := response.New(w, r, "Internal server error occurred while extending the solo phase.", http.StatusInternalServerError)
 		res.Process()
 		return

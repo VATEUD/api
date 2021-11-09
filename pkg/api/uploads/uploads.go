@@ -2,6 +2,7 @@ package uploads
 
 import (
 	"api/internal/pkg/database"
+	"api/internal/pkg/logger"
 	"api/pkg/minio"
 	"api/pkg/models"
 	"api/pkg/response"
@@ -12,7 +13,6 @@ import (
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -22,7 +22,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 	var uploads []*models.Upload
 
 	if err := database.DB.Where("public = ?", true).Find(&uploads).Error; err != nil {
-		log.Println("Error occurred while fetching uploads from the DB. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while fetching uploads from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching uploads.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -35,7 +35,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 	bytes, err := json.Marshal(uploads)
 
 	if err != nil {
-		log.Println("Error occurred while marshalling the response. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while marshalling the response. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching uploads.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -43,7 +43,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(bytes); err != nil {
-		log.Println("Error writing response. Error:", err.Error())
+		logger.Log.Errorln("Error writing response. Error:", err.Error())
 	}
 }
 
@@ -55,7 +55,7 @@ func Filter(w http.ResponseWriter, r *http.Request) {
 	attrs := mux.Vars(r)
 
 	if err := database.DB.Where("public = ? AND type = ?", true, attrs["type"]).Find(&uploads).Error; err != nil {
-		log.Println("Error occurred while fetching uploads from the DB. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while fetching uploads from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching uploads.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -68,7 +68,7 @@ func Filter(w http.ResponseWriter, r *http.Request) {
 	bytes, err := json.Marshal(uploads)
 
 	if err != nil {
-		log.Println("Error occurred while marshalling the response. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while marshalling the response. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching uploads.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -76,7 +76,7 @@ func Filter(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(bytes); err != nil {
-		log.Println("Error writing response. Error:", err.Error())
+		logger.Log.Errorln("Error writing response. Error:", err.Error())
 	}
 }
 
@@ -89,12 +89,12 @@ func Download(w http.ResponseWriter, r *http.Request) {
 
 	if err := database.DB.Where("public = ? AND id = ?", true, attrs["id"]).Find(&upload).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Println("Upload not found. Error:", err.Error())
+			logger.Log.Println("Upload not found. Error:", err.Error())
 			res := response.New(w, r, "File you are looking for, could not be found.", http.StatusNotFound)
 			res.Process()
 		}
 
-		log.Println("Error occurred while fetching upload from the DB. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while fetching upload from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching the file.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -103,7 +103,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 	client, err := minio.New()
 
 	if err != nil {
-		log.Println("Error occurred while starting the minio session. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while starting the minio session. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching the file.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -112,7 +112,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 	file, err := client.Download(upload.Path)
 
 	if err != nil {
-		log.Println("Error occurred while fetching the file from storage. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while fetching the file from storage. Error:", err.Error())
 		res := response.New(w, r, "File not found.", http.StatusNotFound)
 		res.Process()
 		return

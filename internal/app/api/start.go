@@ -2,6 +2,7 @@ package api
 
 import (
 	"api/internal/pkg/database"
+	"api/internal/pkg/logger"
 	"api/pkg/cache"
 	"api/pkg/web"
 	"github.com/joho/godotenv"
@@ -23,14 +24,19 @@ func Start() {
 		return
 	}
 
-	log.Println("Connecting to the database")
+	if err := logger.New(); err != nil {
+		panic(err)
+		return
+	}
+
+	logger.Log.Println("Connecting to the database")
 	database.Connect()
 	cache.New()
 
 	server := web.New()
 
-	log.Println("Starting the web server")
+	logger.Log.Println("Starting the web server")
 	if err := server.Start(); err != nil {
-		log.Println("Error starting the web server. Error:", err.Error())
+		logger.Log.Fatalln("Error starting the web server. Error:", err.Error())
 	}
 }

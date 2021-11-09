@@ -2,11 +2,11 @@ package division
 
 import (
 	"api/internal/pkg/database"
+	"api/internal/pkg/logger"
 	"api/pkg/models"
 	"api/pkg/response"
 	"api/utils"
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -15,7 +15,7 @@ func Instructors(w http.ResponseWriter, r *http.Request) {
 
 	var instructors []models.DivisionInstructor
 	if err := database.DB.Order("user_id asc").Find(&instructors).Error; err != nil {
-		log.Println("Error occurred while fetching users from the DB. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while fetching users from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching examiners.", http.StatusInternalServerError)
 		res.Process()
 		return
@@ -24,7 +24,7 @@ func Instructors(w http.ResponseWriter, r *http.Request) {
 	bytes, err := json.Marshal(instructors)
 
 	if err != nil {
-		log.Println("Error occurred while marshalling the response. Error:", err.Error())
+		logger.Log.Errorln("Error occurred while marshalling the response. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching examiners.", http.StatusInternalServerError)
 		res.Process()
 		return
