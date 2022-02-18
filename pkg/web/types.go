@@ -7,6 +7,7 @@ import (
 	"api/pkg/api/solo_phases"
 	"api/pkg/api/subdivision"
 	"api/pkg/api/uploads"
+	"api/pkg/api/vatsim"
 	"api/pkg/oauth2"
 	"api/pkg/response"
 	"api/pkg/vatsim/connect"
@@ -389,6 +390,19 @@ func (server *Server) loadRoutes() {
 				false,
 				false,
 				true,
+			},
+		},
+		{
+			"/api/vatsim/webhook",
+			[]string{
+				"POST",
+			},
+			vatsim.Webhook,
+			Permission{
+				false,
+				false,
+				false,
+				false,
 			},
 		},
 	}
