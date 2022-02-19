@@ -51,6 +51,8 @@ func (member Member) Update(result chan Result) {
 		return
 	}
 
+	logger.Log.Println("Received member's data -", member)
+
 	result <- Result{
 		StatusCode: http.StatusOK,
 		Message:    "Member updated",
