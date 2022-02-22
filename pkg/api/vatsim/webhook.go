@@ -74,6 +74,8 @@ func Webhook(w http.ResponseWriter, r *http.Request) {
 
 	res := <-resultChannel
 
+	close(resultChannel)
+
 	resp := response.New(w, r, res.Message, res.StatusCode)
 	resp.Process()
 }
