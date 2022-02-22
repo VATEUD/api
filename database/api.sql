@@ -318,3 +318,4 @@ CREATE TABLE `users` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2021-10-24 16:00:25
+ALTER TABLE `subdivisions` ADD COLUMN `within_eud` BOOLEAN DEFAULT TRUE NOT NULL AFTER `discord_server_url`;
