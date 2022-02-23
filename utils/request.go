@@ -20,7 +20,7 @@ type HTTPRequest struct {
 func NewRequest(URL, method string, body io.Reader) *HTTPRequest {
 	return &HTTPRequest{
 		URL:    buildURLParts(URL),
-		Method: method,
+		Method: strings.ToUpper(method),
 		Body:   body,
 		client: &http.Client{},
 	}
