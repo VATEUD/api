@@ -4,7 +4,7 @@ import "time"
 
 type Subdivision struct {
 	ID               uint                    `json:"-" gorm:"primaryKey;type:int(11);unsigned;column:id"`
-	Code             string                  `json:"code" gorm:"type:varchar(20);column:code"`
+	Code             string                  `json:"code" gorm:"type:varchar(20);column:code;unique"`
 	Name             string                  `json:"name" gorm:"type:varchar(255);column:name"`
 	WebsiteURL       string                  `json:"website_url" gorm:"type:varchar(255);column:website_url"`
 	DiscordServerURL *string                 `json:"discord_server_url" gorm:"type:varchar(100);column:discord_server_url"`

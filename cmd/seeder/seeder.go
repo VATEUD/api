@@ -42,7 +42,7 @@ func main() {
 
 	success := make(chan bool)
 
-	go r.DoConcurrently(success)
+	go r.Do(success)
 
 	defer close(success)
 
@@ -86,6 +86,11 @@ func main() {
 	}
 
 	if err := database.DB.Create(subdivisions).Error; err != nil {
+		logger.Log.Fatalln(err.Error())
+		return
+	}
+
+	if err := database.DB.Exec("UPDATE subdivisions SET website_url = NULL").Error; err != nil {
 		logger.Log.Fatalln(err.Error())
 	}
 }

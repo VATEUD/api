@@ -319,3 +319,4 @@ CREATE TABLE `users` (
 
 -- Dump completed on 2021-10-24 16:00:25
 ALTER TABLE `subdivisions` ADD COLUMN `within_eud` BOOLEAN DEFAULT TRUE NOT NULL AFTER `discord_server_url`;
+ALTER TABLE `subdivisions` ADD UNIQUE(code);

@@ -34,39 +34,27 @@ func buildURLParts(URL string) url.URL {
 	}
 }
 
-func (r *HTTPRequest) Do() error {
+func (r *HTTPRequest) Do(checker chan bool) error {
 	r.Request, r.Error = r.request()
 
 	if r.Error != nil {
+		if checker != nil {
+			checker <- false
+		}
 		return r.Error
 	}
 
 	r.Response, r.Error = r.client.Do(r.Request)
 
 	if r.Error != nil {
+		if checker != nil {
+			checker <- false
+		}
 		return r.Error
-	}
-
-	return nil
-}
-
-func (r *HTTPRequest) DoConcurrently(checker chan bool) {
-	r.Request, r.Error = r.request()
-
-	if r.Error != nil {
-		checker <- false
-		return
-	}
-
-	r.Response, r.Error = r.client.Do(r.Request)
-
-	if r.Error != nil {
-		checker <- false
-		return
 	}
 
 	checker <- true
-	return
+	return nil
 }
 
 func (r *HTTPRequest) request() (*http.Request, error) {

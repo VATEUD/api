@@ -17,7 +17,7 @@ func Instructors(w http.ResponseWriter, r *http.Request) {
 	utils.Allow(w, "*")
 	var instructors []models.Subdivision
 
-	if err := database.DB.Preload("Instructors").Order("name asc").Find(&instructors).Error; err != nil {
+	if err := database.DB.Preload("Instructors").Where("within_eud = ?", true).Order("name asc").Find(&instructors).Error; err != nil {
 		logger.Log.Errorln("Error occurred while fetching subdivision instructors from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching subdivision instructors.", http.StatusInternalServerError)
 		res.Process()
@@ -41,10 +41,25 @@ func Instructors(w http.ResponseWriter, r *http.Request) {
 
 func InstructorsFilter(w http.ResponseWriter, r *http.Request) {
 	var instructors []models.SubdivisionInstructor
+	var subdivision models.Subdivision
 
 	attrs := mux.Vars(r)
 
-	if err := database.DB.Where("subdivision_id = ?", attrs["subdivision"]).Find(&instructors).Error; err != nil {
+	if err := database.DB.Where("code = ? AND within_eud = ?", attrs["subdivision"], true).First(&subdivision).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logger.Log.Printf("Subdivision %s not found.\n", attrs["subdivision"])
+			res := response.New(w, r, "Subdivision not found.", http.StatusNotFound)
+			res.Process()
+			return
+		}
+
+		logger.Log.Errorln("Error occurred while fetching subdivisions from the DB. Error:", err.Error())
+		res := response.New(w, r, "Internal server error while fetching subdivision instructors.", http.StatusInternalServerError)
+		res.Process()
+		return
+	}
+
+	if err := database.DB.Where("subdivision_id = ?", subdivision.ID).Find(&instructors).Error; err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logger.Log.Printf("Subdivision %s not found.\n", attrs["subdivision"])
