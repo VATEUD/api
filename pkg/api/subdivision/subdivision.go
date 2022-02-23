@@ -16,7 +16,7 @@ import (
 func Subdivisions(w http.ResponseWriter, r *http.Request) {
 	var subdivisions []models.Subdivision
 
-	if err := database.DB.Order("name asc").Find(&subdivisions).Error; err != nil {
+	if err := database.DB.Where("within_eud = ?", true).Order("name asc").Find(&subdivisions).Error; err != nil {
 		logger.Log.Errorln("Error occurred while fetching subdivisions from the DB. Error:", err.Error())
 		res := response.New(w, r, "Internal server error while fetching subdivisions.", http.StatusInternalServerError)
 		res.Process()
@@ -44,7 +44,7 @@ func Subdivision(w http.ResponseWriter, r *http.Request) {
 
 	attrs := mux.Vars(r)
 
-	if err := database.DB.Where("code = ?", attrs["subdivision"]).Or("id = ?", attrs["subdivision"]).First(&subdivision).Error; err != nil {
+	if err := database.DB.Where("code = ? AND within_eud = ?", attrs["subdivision"], true).Or("id = ? AND within_eud = ?", attrs["subdivision"], true).First(&subdivision).Error; err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logger.Log.Printf("Subdivision %s not found.\n", attrs["subdivision"])
